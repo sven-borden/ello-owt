@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase'
 import { Player } from '@/lib/types'
 import LeaderboardCard from '@/components/LeaderboardCard'
 import AddPlayerForm from '@/components/AddPlayerForm'
+import { trackPageView, trackMatchRecorded, trackError } from '@/lib/analytics'
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
@@ -46,6 +47,8 @@ export default function Home() {
 
   useEffect(() => {
     fetchPlayers()
+    // Track page view
+    trackPageView('home', 'Dashboard')
   }, [])
 
   // Handle match submission using server-side API route
@@ -90,6 +93,16 @@ export default function Home() {
         throw new Error(data.error || 'Failed to record match')
       }
 
+      // Track successful match recording
+      const playerA = players.find((p) => p.id === playerAId)
+      const playerB = players.find((p) => p.id === playerBId)
+      if (playerA && playerB) {
+        const eloChange = Math.abs(
+          data.match?.playerAEloAfter - data.match?.playerAEloBefore || 0
+        )
+        trackMatchRecorded(playerA.name, playerB.name, winner, eloChange)
+      }
+
       // Success! Refresh player list to show updated Elo ratings
       await fetchPlayers()
 
@@ -101,6 +114,8 @@ export default function Home() {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit match. Please try again.'
       setError(errorMessage)
       console.error('Error submitting match:', err)
+      // Track error
+      trackError('match_submission', errorMessage)
     } finally {
       setIsSubmitting(false)
     }

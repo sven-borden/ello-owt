@@ -11,6 +11,7 @@ OWT Chess Elo Tracker - Internal chess Elo rating system for OWT Swiss. A Next.j
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS with custom OWT brand colors
 - **Database**: Firebase Firestore
+- **Analytics**: Firebase Analytics (Google Analytics)
 - **Charts**: Recharts
 - **Deployment**: Vercel
 
@@ -54,6 +55,7 @@ Required environment variables:
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (required for Google Analytics)
 - `NEXT_PUBLIC_FIREBASE_APPCHECK_KEY` (optional, for App Check)
 
 **Server-side (Firebase Admin SDK)** - Required for match recording:
@@ -75,8 +77,9 @@ See `SETUP_ADMIN_SDK.md` for detailed instructions on obtaining service account 
 
 ### Key Files
 
-- `lib/firebase.ts` - Firebase client SDK initialization and App Check setup
+- `lib/firebase.ts` - Firebase client SDK initialization, Analytics, and App Check setup
 - `lib/firebase-admin.ts` - Firebase Admin SDK initialization (server-side only)
+- `lib/analytics.ts` - Google Analytics tracking utility functions
 - `lib/elo.ts` - Elo rating constants (STARTING_ELO: 1200, K_FACTOR: 32)
 - `lib/types.ts` - TypeScript interfaces for Player, Match, EloHistory
 - `app/api/record-match/route.ts` - **Server-side API route for match recording with Elo calculation**
@@ -234,6 +237,73 @@ await updateDoc(doc(db, 'players', playerId), {
   matchesPlayed: matchesPlayed + 1,
 })
 ```
+
+## Analytics
+
+The application uses **Firebase Analytics (Google Analytics)** to track user behavior and app usage.
+
+### Setup
+
+1. Get your Measurement ID from Firebase Console > Project Settings > General > Your apps
+2. Add to `.env.local`: `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX`
+3. Analytics automatically initialize on app load (client-side only)
+
+### Tracked Events
+
+The application tracks the following events:
+
+**Page Views**
+- Dashboard (`home`)
+- Match History (`matches`)
+- Player Profile (`player-{id}`)
+
+**User Actions**
+- `match_recorded` - When a match is successfully recorded
+  - Parameters: `player_a`, `player_b`, `winner`, `elo_change`
+- `player_added` - When a new player is created
+  - Parameters: `player_name`
+- `player_profile_view` - When viewing a player's profile
+  - Parameters: `player_id`, `player_name`
+- `match_history_view` - When viewing match history
+  - Parameters: `filter_type`
+
+**Error Tracking**
+- `error` - When errors occur
+  - Parameters: `error_type`, `error_message`
+
+### Usage
+
+```typescript
+import { trackMatchRecorded, trackPlayerAdded, trackError } from '@/lib/analytics'
+
+// Track match recording
+trackMatchRecorded('Player A', 'Player B', 'A', 32)
+
+// Track player addition
+trackPlayerAdded('New Player')
+
+// Track errors
+trackError('match_submission', 'Failed to record match')
+```
+
+### Available Functions
+
+See `lib/analytics.ts` for all available tracking functions:
+- `trackPageView(pageName, pageTitle)`
+- `trackMatchRecorded(playerA, playerB, winner, eloChange)`
+- `trackPlayerAdded(playerName)`
+- `trackPlayerProfileView(playerId, playerName)`
+- `trackMatchHistoryView(filterType)`
+- `trackError(errorType, errorMessage)`
+- `trackSearch(searchTerm, resultCount)`
+- `trackCustomEvent(eventName, eventParams)`
+
+### Viewing Analytics
+
+Access analytics data in:
+- Firebase Console > Analytics dashboard
+- Google Analytics 4 (GA4) console
+- BigQuery (if enabled for advanced analysis)
 
 ## Elo Rating System
 

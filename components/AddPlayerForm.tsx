@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackPlayerAdded, trackError } from '@/lib/analytics'
 
 interface AddPlayerFormProps {
   onPlayerAdded: () => void
@@ -35,12 +36,18 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
         throw new Error('Failed to add player')
       }
 
+      // Track successful player addition
+      trackPlayerAdded(playerName.trim())
+
       setPlayerName('')
       setShowForm(false)
       onPlayerAdded()
     } catch (err) {
-      setError('Failed to add player. Please try again.')
+      const errorMessage = 'Failed to add player. Please try again.'
+      setError(errorMessage)
       console.error(err)
+      // Track error
+      trackError('player_addition', errorMessage)
     } finally {
       setIsSubmitting(false)
     }

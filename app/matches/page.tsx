@@ -5,6 +5,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Match } from '@/lib/types'
 import MatchHistoryTable from '@/components/MatchHistoryTable'
+import { trackPageView, trackMatchHistoryView } from '@/lib/analytics'
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([])
@@ -46,6 +47,9 @@ export default function MatchesPage() {
     }
 
     fetchMatches()
+    // Track page view
+    trackPageView('matches', 'Match History')
+    trackMatchHistoryView()
   }, [])
 
   if (loading) {

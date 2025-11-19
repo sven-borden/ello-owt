@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase'
 import { Player, Match, EloHistory } from '@/lib/types'
 import EloChart from '@/components/EloChart'
 import MatchHistoryTable from '@/components/MatchHistoryTable'
+import { trackPageView, trackPlayerProfileView } from '@/lib/analytics'
 
 export default function PlayerPage() {
   const params = useParams()
@@ -26,7 +27,7 @@ export default function PlayerPage() {
         const playerDoc = await getDoc(doc(db, 'players', playerId))
         if (playerDoc.exists()) {
           const data = playerDoc.data()
-          setPlayer({
+          const playerData = {
             id: playerDoc.id,
             name: data.name,
             currentElo: data.currentElo,
@@ -34,7 +35,12 @@ export default function PlayerPage() {
             wins: data.wins,
             losses: data.losses,
             createdAt: data.createdAt?.toDate() || new Date(),
-          })
+          }
+          setPlayer(playerData)
+
+          // Track player profile view
+          trackPageView(`player-${playerId}`, `Player: ${data.name}`)
+          trackPlayerProfileView(playerId, data.name)
         }
 
         // Fetch Elo history
