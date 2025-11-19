@@ -7,6 +7,7 @@ import { Player } from '@/lib/types'
 import LeaderboardCard from '@/components/LeaderboardCard'
 import RecordMatchModal from '@/components/RecordMatchModal'
 import AddPlayerModal from '@/components/AddPlayerModal'
+import WelcomeMessage from '@/components/WelcomeMessage'
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
@@ -57,6 +58,9 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Message */}
+      <WelcomeMessage />
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6">
