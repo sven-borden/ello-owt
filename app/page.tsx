@@ -5,17 +5,14 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Player } from '@/lib/types'
 import LeaderboardCard from '@/components/LeaderboardCard'
-import AddPlayerForm from '@/components/AddPlayerForm'
-import WinnerSelector from '@/components/WinnerSelector'
+import RecordMatchModal from '@/components/RecordMatchModal'
+import AddPlayerModal from '@/components/AddPlayerModal'
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
-  const [playerAId, setPlayerAId] = useState('')
-  const [playerBId, setPlayerBId] = useState('')
-  const [winner, setWinner] = useState<'A' | 'B' | 'DRAW' | ''>('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [isRecordMatchModalOpen, setIsRecordMatchModalOpen] = useState(false)
+  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
 
   // Fetch players from Firestore
   const fetchPlayers = async () => {
@@ -49,64 +46,6 @@ export default function Home() {
   useEffect(() => {
     fetchPlayers()
   }, [])
-
-  // Handle match submission using server-side API route
-  const handleMatchSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-
-    // Validation
-    if (!playerAId || !playerBId) {
-      setError('Please select both players')
-      return
-    }
-
-    if (playerAId === playerBId) {
-      setError('Players must be different')
-      return
-    }
-
-    if (!winner) {
-      setError('Please select a winner')
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      // Call the API route - Elo calculation happens server-side
-      const response = await fetch('/api/record-match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          playerAId,
-          playerBId,
-          winner,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to record match')
-      }
-
-      // Success! Refresh player list to show updated Elo ratings
-      await fetchPlayers()
-
-      // Reset form
-      setPlayerAId('')
-      setPlayerBId('')
-      setWinner('')
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit match. Please try again.'
-      setError(errorMessage)
-      console.error('Error submitting match:', err)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -177,92 +116,63 @@ export default function Home() {
             <h2 className="text-xl font-bold text-almost-black mb-6">
               Quick Actions
             </h2>
-            <div className="space-y-6">
-              {/* Record Match */}
+            <div className="space-y-3">
+              {/* Record Match Button */}
               {players.length >= 2 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-custom-700 mb-3">
-                    Record Match
-                  </h3>
-                  <form onSubmit={handleMatchSubmit} className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2">
-                        Player A
-                      </label>
-                      <select
-                        value={playerAId}
-                        onChange={(e) => setPlayerAId(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
-                        disabled={isSubmitting}
-                      >
-                        <option value="">Select Player A</option>
-                        {players
-                          .filter((player) => player.id !== playerBId)
-                          .map((player) => (
-                            <option key={player.id} value={player.id}>
-                              {player.name} ({player.currentElo})
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2">
-                        Player B
-                      </label>
-                      <select
-                        value={playerBId}
-                        onChange={(e) => setPlayerBId(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
-                        disabled={isSubmitting}
-                      >
-                        <option value="">Select Player B</option>
-                        {players
-                          .filter((player) => player.id !== playerAId)
-                          .map((player) => (
-                            <option key={player.id} value={player.id}>
-                              {player.name} ({player.currentElo})
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-
-                    <WinnerSelector
-                      winner={winner}
-                      onWinnerChange={(w) => setWinner(w)}
-                      playerAName={players.find((p) => p.id === playerAId)?.name}
-                      playerBName={players.find((p) => p.id === playerBId)?.name}
-                      disabled={isSubmitting}
-                    />
-
-                    {error && (
-                      <div className="p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs">
-                        {error}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-brand-red text-white font-semibold py-2.5 px-4 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                    >
-                      {isSubmitting ? 'Recording...' : 'Record Match'}
-                    </button>
-                  </form>
-                </div>
+                <button
+                  onClick={() => setIsRecordMatchModalOpen(true)}
+                  className="w-full bg-brand-red text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  Record Match
+                </button>
               )}
 
-              {/* Add Player */}
-              <div className={players.length >= 2 ? "pt-6 border-t border-gray-custom-200" : ""}>
-                <h3 className="text-sm font-semibold text-gray-custom-700 mb-3">
-                  Add New Player
-                </h3>
-                <AddPlayerForm onPlayerAdded={fetchPlayers} />
-              </div>
+              {/* Add Player Button */}
+              <button
+                onClick={() => setIsAddPlayerModalOpen(true)}
+                className="w-full bg-brand-blue text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Add New Player
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <RecordMatchModal
+        isOpen={isRecordMatchModalOpen}
+        onClose={() => setIsRecordMatchModalOpen(false)}
+        players={players}
+        onMatchRecorded={fetchPlayers}
+      />
+      <AddPlayerModal
+        isOpen={isAddPlayerModalOpen}
+        onClose={() => setIsAddPlayerModalOpen(false)}
+        onPlayerAdded={fetchPlayers}
+      />
     </div>
   )
 }
