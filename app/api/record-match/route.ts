@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb, admin } from '@/lib/firebase-admin'
+import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 
 // Elo calculation constants
 const K_FACTOR = 32
@@ -80,6 +80,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Initialize Firebase Admin (lazy initialization)
+    const adminDb = getAdminDb()
+    const admin = getAdmin()
 
     // Use a Firestore transaction to ensure data consistency
     const result = await adminDb.runTransaction(async (transaction) => {
