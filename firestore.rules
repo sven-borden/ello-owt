@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Open rules for internal company use (no authentication required)
+    // WARNING: These rules allow anyone with access to read and write
+    // Only suitable for internal, trusted environments
+
+    match /players/{playerId} {
+      allow read, write: if true;
+    }
+
+    match /matches/{matchId} {
+      allow read, write: if true;
+    }
+
+    match /eloHistory/{historyId} {
+      allow read, write: if true;
+    }
+  }
+}
