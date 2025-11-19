@@ -194,11 +194,13 @@ export default function Home() {
                         disabled={isSubmitting}
                       >
                         <option value="">Select Player A</option>
-                        {players.map((player) => (
-                          <option key={player.id} value={player.id}>
-                            {player.name} ({player.currentElo})
-                          </option>
-                        ))}
+                        {players
+                          .filter((player) => player.id !== playerBId)
+                          .map((player) => (
+                            <option key={player.id} value={player.id}>
+                              {player.name} ({player.currentElo})
+                            </option>
+                          ))}
                       </select>
                     </div>
 
@@ -213,11 +215,13 @@ export default function Home() {
                         disabled={isSubmitting}
                       >
                         <option value="">Select Player B</option>
-                        {players.map((player) => (
-                          <option key={player.id} value={player.id}>
-                            {player.name} ({player.currentElo})
-                          </option>
-                        ))}
+                        {players
+                          .filter((player) => player.id !== playerAId)
+                          .map((player) => (
+                            <option key={player.id} value={player.id}>
+                              {player.name} ({player.currentElo})
+                            </option>
+                          ))}
                       </select>
                     </div>
 
