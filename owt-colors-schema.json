@@ -1,0 +1,303 @@
+{
+  "name": "OWT Swiss Color Schema",
+  "source": "https://owt.swiss",
+  "extracted_date": "2025-11-19",
+  "description": "Color palette from OWT (Open Web Technology) - a Swiss strategy and technology consulting firm",
+  "colors": {
+    "primary": {
+      "description": "Primary brand colors - predominantly red tones",
+      "values": {
+        "brand_red_dark": {
+          "hex": "#99211C",
+          "rgb": "rgb(153, 33, 28)",
+          "usage": "Primary brand color, main CTAs, important elements"
+        },
+        "brand_red": {
+          "hex": "#C93227",
+          "rgb": "rgb(201, 50, 39)",
+          "usage": "Primary red variant"
+        },
+        "brand_red_bright": {
+          "hex": "#E41919",
+          "rgb": "rgb(228, 25, 25)",
+          "usage": "Bright red accent"
+        },
+        "brand_red_orange": {
+          "hex": "#E2523F",
+          "rgb": "rgb(226, 82, 63)",
+          "usage": "Red-orange accent"
+        },
+        "brand_coral": {
+          "hex": "#E56655",
+          "rgb": "rgb(229, 102, 85)",
+          "usage": "Coral red variation"
+        }
+      }
+    },
+    "secondary": {
+      "description": "Secondary brand colors - blue tones",
+      "values": {
+        "brand_blue_dark": {
+          "hex": "#263D6C",
+          "rgb": "rgb(38, 61, 108)",
+          "usage": "Dark blue accent"
+        },
+        "brand_blue_bright": {
+          "hex": "#2C7CF2",
+          "rgb": "rgb(44, 124, 242)",
+          "usage": "Bright blue accent"
+        }
+      }
+    },
+    "neutrals": {
+      "description": "Neutral colors - grays and blacks",
+      "values": {
+        "black": {
+          "hex": "#000000",
+          "rgb": "rgb(0, 0, 0)",
+          "usage": "Pure black"
+        },
+        "almost_black": {
+          "hex": "#140406",
+          "rgb": "rgb(20, 4, 6)",
+          "usage": "Very dark brown-black, text and backgrounds"
+        },
+        "charcoal": {
+          "hex": "#2B2E38",
+          "rgb": "rgb(43, 46, 56)",
+          "usage": "Dark gray-blue"
+        },
+        "gray_darkest": {
+          "hex": "#3B3B3B",
+          "rgb": "rgb(59, 59, 59)",
+          "usage": "Dark gray"
+        },
+        "gray_dark": {
+          "hex": "#444444",
+          "rgb": "rgb(68, 68, 68)",
+          "usage": "Dark gray"
+        },
+        "gray_medium_dark": {
+          "hex": "#666666",
+          "rgb": "rgb(102, 102, 102)",
+          "usage": "Medium-dark gray"
+        },
+        "gray_medium": {
+          "hex": "#696969",
+          "rgb": "rgb(105, 105, 105)",
+          "usage": "Medium gray"
+        },
+        "gray": {
+          "hex": "#979797",
+          "rgb": "rgb(151, 151, 151)",
+          "usage": "Mid gray"
+        },
+        "gray_light": {
+          "hex": "#A8A8A8",
+          "rgb": "rgb(168, 168, 168)",
+          "usage": "Light gray"
+        },
+        "gray_lighter": {
+          "hex": "#BBBBBB",
+          "rgb": "rgb(187, 187, 187)",
+          "usage": "Lighter gray"
+        },
+        "gray_very_light": {
+          "hex": "#CCCCCC",
+          "rgb": "rgb(204, 204, 204)",
+          "usage": "Very light gray, borders"
+        },
+        "gray_ultra_light": {
+          "hex": "#E0E0E0",
+          "rgb": "rgb(224, 224, 224)",
+          "usage": "Ultra light gray"
+        },
+        "off_white_gray": {
+          "hex": "#F0F0F0",
+          "rgb": "rgb(240, 240, 240)",
+          "usage": "Off-white gray background"
+        },
+        "white": {
+          "hex": "#FFFFFF",
+          "rgb": "rgb(255, 255, 255)",
+          "usage": "Pure white"
+        }
+      }
+    },
+    "accent_tints": {
+      "description": "Light tints and pastel variations",
+      "values": {
+        "blue_gray_light": {
+          "hex": "#AEB7C9",
+          "rgb": "rgb(174, 183, 201)",
+          "usage": "Light blue-gray"
+        },
+        "cyan_light": {
+          "hex": "#BBD2D7",
+          "rgb": "rgb(187, 210, 215)",
+          "usage": "Light cyan-gray"
+        },
+        "blue_light": {
+          "hex": "#C1D6DB",
+          "rgb": "rgb(193, 214, 219)",
+          "usage": "Light blue"
+        },
+        "blue_very_light": {
+          "hex": "#D1E1E4",
+          "rgb": "rgb(209, 225, 228)",
+          "usage": "Very light blue"
+        },
+        "ice_blue": {
+          "hex": "#F3F8FA",
+          "rgb": "rgb(243, 248, 250)",
+          "usage": "Ice blue background"
+        },
+        "pink_light": {
+          "hex": "#F6CAC4",
+          "rgb": "rgb(246, 202, 196)",
+          "usage": "Light pink/peach"
+        },
+        "pink_very_light": {
+          "hex": "#F9DDDA",
+          "rgb": "rgb(249, 221, 218)",
+          "usage": "Very light pink"
+        },
+        "cream_pink": {
+          "hex": "#FDF0ED",
+          "rgb": "rgb(253, 240, 237)",
+          "usage": "Cream pink background"
+        },
+        "peach_light": {
+          "hex": "#FFBCAA",
+          "rgb": "rgb(255, 188, 170)",
+          "usage": "Light peach/coral"
+        }
+      }
+    },
+    "ui_elements": {
+      "description": "UI-specific color variations including backgrounds and overlays",
+      "values": {
+        "overlay_dark": {
+          "hex": "#2B2E38",
+          "rgba": "rgba(43, 46, 56, 0.9)",
+          "usage": "Dark overlay for modal backgrounds"
+        },
+        "overlay_black": {
+          "hex": "#000000",
+          "rgba": "rgba(0, 0, 0, 0.22)",
+          "usage": "Black overlay"
+        },
+        "overlay_brand": {
+          "hex": "#99211C",
+          "rgba": "rgba(153, 33, 28, 0.15)",
+          "usage": "Brand color overlay"
+        },
+        "shadow": {
+          "rgba": "rgba(20, 4, 6, 0.15)",
+          "usage": "Shadow effects"
+        }
+      }
+    },
+    "special": {
+      "description": "Special purpose colors",
+      "values": {
+        "burgundy_dark": {
+          "hex": "#380007",
+          "rgb": "rgb(56, 0, 7)",
+          "usage": "Dark burgundy accent"
+        },
+        "lilac": {
+          "hex": "#BBAACC",
+          "rgb": "rgb(187, 170, 204)",
+          "usage": "Lilac accent (abbreviated as #bac)"
+        },
+        "sage": {
+          "hex": "#AACCEE",
+          "rgb": "rgb(170, 204, 238)",
+          "usage": "Sage/light blue accent (abbreviated as #acce)"
+        },
+        "off_white_purple": {
+          "hex": "#F3F2F3",
+          "rgb": "rgb(243, 242, 243)",
+          "usage": "Off-white with purple tint"
+        },
+        "off_white_blue": {
+          "hex": "#F8F9F9",
+          "rgb": "rgb(248, 249, 249)",
+          "usage": "Off-white with blue tint"
+        },
+        "off_white_warm": {
+          "hex": "#F5F5F5",
+          "rgb": "rgb(245, 245, 245)",
+          "usage": "Warm off-white"
+        },
+        "gray_purple": {
+          "hex": "#DCD9DA",
+          "rgb": "rgb(220, 217, 218)",
+          "usage": "Gray with purple tint"
+        },
+        "gray_blue": {
+          "hex": "#E5E7EB",
+          "rgb": "rgb(229, 231, 235)",
+          "usage": "Gray with blue tint"
+        },
+        "gray_warm": {
+          "hex": "#DDDDDD",
+          "rgb": "rgb(221, 221, 221)",
+          "usage": "Warm gray"
+        },
+        "gray_cool": {
+          "hex": "#B8B8B8",
+          "rgb": "rgb(184, 184, 184)",
+          "usage": "Cool gray"
+        }
+      }
+    }
+  },
+  "color_palette_summary": {
+    "primary_brand": "#99211C",
+    "primary_text": "#140406",
+    "background_light": "#FFFFFF",
+    "background_dark": "#2B2E38",
+    "accent_blue": "#2C7CF2",
+    "accent_red": "#E41919",
+    "neutral_gray": "#696969",
+    "border_color": "#CCCCCC"
+  },
+  "opacity_variants": [
+    "rgba(0, 0, 0, 0.1)",
+    "rgba(0, 0, 0, 0.22)",
+    "rgba(153, 33, 28, 0.15)",
+    "rgba(153, 33, 28, 0.3)",
+    "rgba(193, 214, 219, 0.5)",
+    "rgba(20, 4, 6, 0.12)",
+    "rgba(20, 4, 6, 0.15)",
+    "rgba(20, 4, 6, 0.3)",
+    "rgba(20, 4, 6, 0.5)",
+    "rgba(20, 4, 6, 0.6)",
+    "rgba(255, 255, 255, 0.1)",
+    "rgba(255, 255, 255, 0.3)",
+    "rgba(255, 255, 255, 0.5)",
+    "rgba(255, 255, 255, 0.95)",
+    "rgba(38, 61, 108, 0.14)",
+    "rgba(38, 61, 108, 0.8)",
+    "rgba(43, 46, 56, 0.9)",
+    "rgba(56, 0, 7, 0.15)",
+    "rgba(56, 0, 7, 0.3)",
+    "rgba(71, 99, 112, 0.3)"
+  ],
+  "design_notes": {
+    "style": "Swiss/International design style",
+    "main_characteristics": [
+      "Predominantly red and white color scheme",
+      "Clean, minimal aesthetic",
+      "Strong use of grays for hierarchy",
+      "Blue accents for secondary actions",
+      "Warm red (#99211C) as primary brand color",
+      "High contrast between dark text and light backgrounds",
+      "Subtle tints for backgrounds and surfaces"
+    ],
+    "typography_context": "Colors used with clean, sans-serif typography typical of Swiss design",
+    "accessibility": "High contrast ratios maintained between text and background colors"
+  }
+}
