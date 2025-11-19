@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       matchesPlayed: 0,
       wins: 0,
       losses: 0,
+      draws: 0,
       createdAt: Timestamp.now(),
     }
 

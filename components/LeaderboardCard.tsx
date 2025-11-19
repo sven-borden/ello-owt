@@ -46,7 +46,7 @@ export default function LeaderboardCard({ players }: LeaderboardCardProps) {
                       {player.name}
                     </h3>
                     <p className="text-xs text-gray-custom-600">
-                      {player.wins}W - {player.losses}L
+                      {player.wins}W - {player.losses}L - {player.draws}D
                     </p>
                   </div>
                 </div>
@@ -90,7 +90,7 @@ export default function LeaderboardCard({ players }: LeaderboardCardProps) {
                     </Link>
                   </td>
                   <td className="py-3 text-center text-xs text-gray-custom-600">
-                    {player.wins}W - {player.losses}L
+                    {player.wins}W - {player.losses}L - {player.draws}D
                   </td>
                   <td className="py-3 text-right font-bold text-sm text-brand-red">
                     {player.currentElo}

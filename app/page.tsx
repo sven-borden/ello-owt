@@ -6,13 +6,14 @@ import { db } from '@/lib/firebase'
 import { Player } from '@/lib/types'
 import LeaderboardCard from '@/components/LeaderboardCard'
 import AddPlayerForm from '@/components/AddPlayerForm'
+import WinnerSelector from '@/components/WinnerSelector'
 
 export default function Home() {
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
   const [playerAId, setPlayerAId] = useState('')
   const [playerBId, setPlayerBId] = useState('')
-  const [winner, setWinner] = useState<'A' | 'B' | ''>('')
+  const [winner, setWinner] = useState<'A' | 'B' | 'DRAW' | ''>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -32,6 +33,7 @@ export default function Home() {
           matchesPlayed: data.matchesPlayed,
           wins: data.wins,
           losses: data.losses,
+          draws: data.draws || 0,
           createdAt: data.createdAt?.toDate() || new Date(),
         })
       })
@@ -225,21 +227,13 @@ export default function Home() {
                       </select>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2">
-                        Winner
-                      </label>
-                      <select
-                        value={winner}
-                        onChange={(e) => setWinner(e.target.value as 'A' | 'B' | '')}
-                        className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
-                        disabled={isSubmitting}
-                      >
-                        <option value="">Select Winner</option>
-                        <option value="A">Player A Wins</option>
-                        <option value="B">Player B Wins</option>
-                      </select>
-                    </div>
+                    <WinnerSelector
+                      winner={winner}
+                      onWinnerChange={(w) => setWinner(w)}
+                      playerAName={players.find((p) => p.id === playerAId)?.name}
+                      playerBName={players.find((p) => p.id === playerBId)?.name}
+                      disabled={isSubmitting}
+                    />
 
                     {error && (
                       <div className="p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs">
