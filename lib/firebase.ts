@@ -50,51 +50,53 @@ function getFirebaseConfig() {
   }
 }
 
-// Lazy initialization to avoid errors during build time
-let _app: FirebaseApp | null = null
-let _db: Firestore | null = null
-let _initialized = false
-
-function initializeFirebase() {
-  if (_initialized) return
-
-  const firebaseConfig = getFirebaseConfig()
-
-  // Initialize Firebase
-  _app = getApps().length === 0 ? initializeApp(firebaseConfig) : getFirebaseApp()
-  _db = getFirestore(_app)
-
-  // Initialize App Check
-  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_KEY) {
-    initializeAppCheck(_app, {
-      provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_KEY),
-      isTokenAutoRefreshEnabled: true,
-    })
+// Initialize Firebase immediately in browser, but not during build
+function initializeFirebaseApp() {
+  // Only initialize in browser environment
+  if (typeof window === 'undefined') {
+    return { app: null, db: null }
   }
 
-  _initialized = true
-}
+  try {
+    const firebaseConfig = getFirebaseConfig()
 
-// Export getters that ensure initialization before use
-export const getApp = () => {
-  if (!_app) initializeFirebase()
-  return _app!
-}
+    // Initialize Firebase
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getFirebaseApp()
+    const db = getFirestore(app)
 
-export const getDB = () => {
-  if (!_db) initializeFirebase()
-  return _db!
-}
+    // Initialize App Check
+    if (process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_KEY) {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_FIREBASE_APPCHECK_KEY),
+        isTokenAutoRefreshEnabled: true,
+      })
+    }
 
-// For backward compatibility, export app and db as getters
-export const app = new Proxy({} as FirebaseApp, {
-  get(_, prop) {
-    return (getApp() as any)[prop]
+    return { app, db }
+  } catch (error) {
+    console.error('Failed to initialize Firebase:', error)
+    throw error
   }
-})
+}
 
-export const db = new Proxy({} as Firestore, {
-  get(_, prop) {
-    return (getDB() as any)[prop]
+// Initialize immediately when module loads in browser
+const { app: firebaseApp, db: firebaseDB } = initializeFirebaseApp()
+
+// Export the initialized instances
+export const app = firebaseApp as FirebaseApp
+export const db = firebaseDB as Firestore
+
+// Export getter functions for explicit initialization
+export function getApp(): FirebaseApp {
+  if (!firebaseApp) {
+    throw new Error('Firebase app is not initialized. This may occur during server-side rendering.')
   }
-})
+  return firebaseApp
+}
+
+export function getDB(): Firestore {
+  if (!firebaseDB) {
+    throw new Error('Firebase Firestore is not initialized. This may occur during server-side rendering.')
+  }
+  return firebaseDB
+}
