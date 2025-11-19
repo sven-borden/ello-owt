@@ -6,6 +6,7 @@ export interface Player {
   matchesPlayed: number
   wins: number
   losses: number
+  draws: number
   createdAt: Date
 }
 
@@ -16,7 +17,7 @@ export interface Match {
   playerBId: string
   playerAName: string
   playerBName: string
-  winner: 'A' | 'B'
+  winner: 'A' | 'B' | 'DRAW'
   playerAEloBefore: number
   playerBEloBefore: number
   playerAEloAfter: number

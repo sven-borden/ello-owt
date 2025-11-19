@@ -30,15 +30,15 @@ function calculateNewElo(
 function calculateMatchEloChanges(
   playerAElo: number,
   playerBElo: number,
-  winner: 'A' | 'B'
+  winner: 'A' | 'B' | 'DRAW'
 ): {
   playerAEloAfter: number
   playerBEloAfter: number
   playerAChange: number
   playerBChange: number
 } {
-  const playerAScore = winner === 'A' ? 1 : 0
-  const playerBScore = winner === 'B' ? 1 : 0
+  const playerAScore = winner === 'A' ? 1 : winner === 'DRAW' ? 0.5 : 0
+  const playerBScore = winner === 'B' ? 1 : winner === 'DRAW' ? 0.5 : 0
 
   const playerAEloAfter = calculateNewElo(playerAElo, playerBElo, playerAScore)
   const playerBEloAfter = calculateNewElo(playerBElo, playerAElo, playerBScore)
@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (winner !== 'A' && winner !== 'B') {
+    if (winner !== 'A' && winner !== 'B' && winner !== 'DRAW') {
       return NextResponse.json(
-        { error: 'Winner must be either "A" or "B"' },
+        { error: 'Winner must be either "A", "B", or "DRAW"' },
         { status: 400 }
       )
     }
@@ -127,6 +127,7 @@ export async function POST(request: NextRequest) {
         matchesPlayed: playerA.matchesPlayed + 1,
         wins: winner === 'A' ? playerA.wins + 1 : playerA.wins,
         losses: winner === 'B' ? playerA.losses + 1 : playerA.losses,
+        draws: winner === 'DRAW' ? (playerA.draws || 0) + 1 : (playerA.draws || 0),
       })
 
       // Update player B
@@ -135,6 +136,7 @@ export async function POST(request: NextRequest) {
         matchesPlayed: playerB.matchesPlayed + 1,
         wins: winner === 'B' ? playerB.wins + 1 : playerB.wins,
         losses: winner === 'A' ? playerB.losses + 1 : playerB.losses,
+        draws: winner === 'DRAW' ? (playerB.draws || 0) + 1 : (playerB.draws || 0),
       })
 
       // Add Elo history for player A
