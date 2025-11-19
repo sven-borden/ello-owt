@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { collection, addDoc, Timestamp } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 import { STARTING_ELO } from '@/lib/elo'
 
 export async function POST(request: NextRequest) {
@@ -14,6 +13,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Initialize Firebase Admin (lazy initialization)
+    const adminDb = getAdminDb()
+    const admin = getAdmin()
+
     // Create new player document
     const playerData = {
       name: name.trim(),
@@ -22,10 +25,10 @@ export async function POST(request: NextRequest) {
       wins: 0,
       losses: 0,
       draws: 0,
-      createdAt: Timestamp.now(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     }
 
-    const docRef = await addDoc(collection(db, 'players'), playerData)
+    const docRef = await adminDb.collection('players').add(playerData)
 
     return NextResponse.json(
       {
