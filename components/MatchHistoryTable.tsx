@@ -45,6 +45,7 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
             {matches.map((match) => {
               const playerAWon = match.winner === 'A'
               const playerBWon = match.winner === 'B'
+              const isDraw = match.winner === 'DRAW'
               const playerAChange = match.playerAEloAfter - match.playerAEloBefore
               const playerBChange = match.playerBEloAfter - match.playerBEloBefore
 
@@ -67,6 +68,7 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                         {match.playerAName}
                       </Link>
                       {playerAWon && <span className="text-brand-red">🏆</span>}
+                      {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
                     <div className="text-xs text-gray-custom-500">
                       {match.playerAEloBefore} → {match.playerAEloAfter}
@@ -86,14 +88,15 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                         {match.playerBName}
                       </Link>
                       {playerBWon && <span className="text-brand-red">🏆</span>}
+                      {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
                     <div className="text-xs text-gray-custom-500">
                       {match.playerBEloBefore} → {match.playerBEloAfter}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className="text-sm font-semibold text-brand-red">
-                      {playerAWon ? match.playerAName : match.playerBName}
+                    <span className={`text-sm font-semibold ${isDraw ? 'text-gray-custom-600' : 'text-brand-red'}`}>
+                      {isDraw ? 'Draw' : playerAWon ? match.playerAName : match.playerBName}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
