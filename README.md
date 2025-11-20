@@ -1,170 +1,136 @@
 # OWT Chess Elo Tracker
 
-Internal chess Elo scoring system for OWT Swiss. Track players, record matches, and visualize Elo ratings over time with a professional, corporate-styled dashboard.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+
+An internal chess Elo rating system for OWT Swiss. Track players, record matches, and visualize Elo ratings over time with a clean, Swiss-inspired design.
+
+![Dashboard Preview](https://via.placeholder.com/800x400/99211C/FFFFFF?text=OWT+Chess+Elo+Tracker)
 
 ## Features
 
 - **Real-time Leaderboard** with top 3 player badges (King 👑, Queen 👸, Rook 🏰)
-- **Match Recording** - Easy form to record chess matches and automatically calculate Elo changes
-- **Match History** - Complete history of all matches with Elo changes
-- **Player Profiles** - Detailed stats including win/loss record, Elo chart over time, and match history
-- **Professional Design** - Clean, Swiss-inspired design using OWT brand colors
+- **Secure Match Recording** - Server-side Elo calculation prevents manipulation
+- **Match History** - Complete audit trail of all matches with Elo changes
+- **Player Profiles** - Detailed statistics, win/loss records, and Elo progression charts
+- **Professional Design** - Clean, Swiss-inspired aesthetic using OWT brand colors
+- **Atomic Transactions** - Firebase transactions ensure data consistency
 
 ## Tech Stack
 
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS with OWT brand colors
-- **Database**: Firebase Firestore
-- **Charts**: Recharts
-- **Deployment**: Vercel
+- **Styling**: Tailwind CSS with custom OWT brand palette
+- **Database**: Firebase Firestore (real-time NoSQL)
+- **Charts**: Recharts for data visualization
+- **Authentication**: Firebase Admin SDK (server-side)
+- **Deployment**: Vercel (edge functions + static)
 
-## Setup Instructions
-
-### 1. Clone and Install
+## Quick Start
 
 ```bash
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/sven-borden/ello-owt.git
 cd ello-owt
+
+# Install dependencies
 npm install
-```
 
-### 2. Firebase Configuration
-
-1. Go to [Firebase Console](https://console.firebase.google.com/u/0/project/ello-owt/overview)
-2. Navigate to **Project Settings** > **General** > **Your apps**
-3. Click **SDK setup and configuration**
-4. Copy the Firebase configuration values
-
-### 3. Environment Variables
-
-Create a `.env.local` file in the root directory:
-
-```bash
+# Set up environment variables
 cp .env.example .env.local
-```
+# Edit .env.local with your Firebase credentials
+# (OWT contributors: contact the owner for env values)
 
-Fill in the Firebase configuration values:
+# Deploy Firestore rules (skip if using OWT Firebase project)
+firebase login
+firebase deploy --only firestore:rules,firestore:indexes
 
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=ello-owt.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=ello-owt
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=ello-owt.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-### 4. Deploy Firestore Security Rules
-
-```bash
-firebase deploy --only firestore:rules
-firebase deploy --only firestore:indexes
-```
-
-### 5. Add Initial Players
-
-Go to Firebase Console > Firestore Database and manually add your first players:
-
-**Collection**: `players`
-
-**Document structure**:
-```json
-{
-  "name": "Player Name",
-  "currentElo": 1200,
-  "matchesPlayed": 0,
-  "wins": 0,
-  "losses": 0,
-  "createdAt": <Timestamp>
-}
-```
-
-### 6. Run Development Server
-
-```bash
+# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Visit [http://localhost:3000](http://localhost:3000) to see the app in action.
 
-## Deployment to Vercel
+> **Note for OWT Swiss contributors**: Contact the project owner to receive Firebase environment variables and start contributing immediately without setting up your own Firebase project.
 
-### Option 1: Vercel CLI
+## Detailed Setup
 
-```bash
-npm install -g vercel
-vercel login
-vercel
-```
+For complete setup instructions including Firebase configuration and Firebase Admin SDK setup, see:
 
-### Option 2: GitHub Integration
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Getting started guide for contributors
+- [docs/SETUP_ADMIN_SDK.md](docs/SETUP_ADMIN_SDK.md) - Firebase Admin SDK configuration
+- [docs/CLAUDE.md](docs/CLAUDE.md) - Complete technical documentation
 
-1. Push code to GitHub
-2. Go to [Vercel Dashboard](https://vercel.com)
-3. Click **New Project**
-4. Import your GitHub repository
-5. Add environment variables from `.env.local`
-6. Deploy
+## Architecture
 
-### Environment Variables on Vercel
+### Server-Side Elo Calculation
 
-Add the same environment variables from `.env.local` in:
-**Project Settings** > **Environment Variables**
+This project implements server-side Elo calculations to prevent client-side manipulation:
 
-## Usage
+- **API Route**: `/api/record-match` handles all match recording
+- **Firebase Admin SDK**: Server-only privileged access to Firestore
+- **Atomic Transactions**: All updates succeed or fail together
+- **Input Validation**: Server-side validation prevents malicious data
 
-### Recording a Match
+See [docs/SECURITY_ANALYSIS.md](docs/SECURITY_ANALYSIS.md) for detailed security considerations.
 
-1. Go to the Dashboard
-2. Use the "Record Match" form
-3. Select Player A and Player B
-4. Choose the winner
-5. Submit - Elo ratings are calculated and updated automatically
-
-### Viewing Stats
-
-- **Dashboard**: See leaderboard, top 3 players, and quick stats
-- **Matches**: View complete match history with Elo changes
-- **Player Profiles**: Click any player name to see detailed stats and Elo chart
-
-## Elo Calculation
+### Elo Rating System
 
 - **Starting Elo**: 1200
 - **K-Factor**: 32 (moderate volatility)
 - **Formula**: Standard Elo rating system
 
+```
+Expected Score = 1 / (1 + 10^((opponentElo - playerElo) / 400))
 New Rating = Old Rating + K × (Actual Score - Expected Score)
-
-## Color Scheme
-
-Based on OWT Swiss brand colors:
-- Primary: `#99211C` (OWT Red)
-- Accent: `#2C7CF2` (Blue)
-- Text: `#140406` (Almost Black)
-- Backgrounds: `#FFFFFF`, `#F5F5F5`
+```
 
 ## Project Structure
 
 ```
-/app
-  /page.tsx                  # Dashboard with leaderboard and match form
-  /matches/page.tsx          # Match history
-  /players/[id]/page.tsx     # Player profile
-  /api
-    /record-match/route.ts   # Server-side match recording API
-    /add-player/route.ts     # Server-side player creation API
-/components
-  /LeaderboardCard.tsx       # Top 3 + rankings table
-  /AddPlayerForm.tsx         # Player creation form
-  /MatchHistoryTable.tsx     # Match history table
-  /EloChart.tsx              # Elo rating chart
-/lib
-  /firebase.ts               # Firebase client SDK
-  /firebase-admin.ts         # Firebase Admin SDK (server-side)
-  /elo.ts                    # Elo constants
-  /types.ts                  # TypeScript types
+/app                        # Next.js App Router
+  /page.tsx                 # Dashboard (leaderboard + match form)
+  /matches/page.tsx         # Match history page
+  /players/[id]/page.tsx    # Individual player profile
+  /api                      # Server-side API routes
+    /record-match/route.ts  # Match recording with Elo calculation
+    /add-player/route.ts    # Player creation endpoint
+/components                 # React components
+  /LeaderboardCard.tsx      # Leaderboard display
+  /AddPlayerForm.tsx        # Player creation form
+  /MatchHistoryTable.tsx    # Match history table
+  /EloChart.tsx             # Elo rating chart (Recharts)
+/lib                        # Utilities and configuration
+  /firebase.ts              # Firebase client SDK
+  /firebase-admin.ts        # Firebase Admin SDK (server-side)
+  /elo.ts                   # Elo rating constants
+  /types.ts                 # TypeScript type definitions
+/docs                       # Project documentation
+  /BRANDING.md              # Design system and color palette
+  /SECURITY_ANALYSIS.md     # Security audit and considerations
+  /SETUP_ADMIN_SDK.md       # Firebase Admin SDK setup guide
+  /CLAUDE.md                # Comprehensive technical documentation
 ```
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
+- Development workflow and branching strategy
+- Coding standards and best practices
+- Pull request process
+- Security guidelines
+
+## Documentation
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [docs/CLAUDE.md](docs/CLAUDE.md) - Complete technical documentation
+- [docs/BRANDING.md](docs/BRANDING.md) - Design system and color palette
+- [docs/SECURITY_ANALYSIS.md](docs/SECURITY_ANALYSIS.md) - Security considerations
+- [docs/SETUP_ADMIN_SDK.md](docs/SETUP_ADMIN_SDK.md) - Firebase Admin setup
 
 ## License
 
 MIT License - Copyright (c) 2025 Sven
+
+See [LICENSE](LICENSE) for details.
