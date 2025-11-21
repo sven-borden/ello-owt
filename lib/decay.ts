@@ -7,14 +7,14 @@
 
 // Decay configuration constants
 export const DECAY_CONFIG = {
-  // Number of days before decay starts (30 days = 1 month)
-  INACTIVITY_THRESHOLD_DAYS: 30,
+  // Number of days before decay starts (7 days = 1 week)
+  INACTIVITY_THRESHOLD_DAYS: 7,
 
-  // Elo points lost per decay period (30 days)
+  // Elo points lost per decay period (7 days)
   DECAY_POINTS_PER_PERIOD: 5,
 
   // Length of each decay period in days
-  DECAY_PERIOD_DAYS: 30,
+  DECAY_PERIOD_DAYS: 7,
 
   // Minimum Elo rating (decay stops here)
   MINIMUM_ELO: 1000,
