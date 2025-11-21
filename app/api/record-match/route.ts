@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
         wins: winner === 'A' ? playerA.wins + 1 : playerA.wins,
         losses: winner === 'B' ? playerA.losses + 1 : playerA.losses,
         draws: winner === 'DRAW' ? (playerA.draws || 0) + 1 : (playerA.draws || 0),
+        lastPlayed: admin.firestore.FieldValue.serverTimestamp(),
       })
 
       // Update player B
@@ -137,6 +138,7 @@ export async function POST(request: NextRequest) {
         wins: winner === 'B' ? playerB.wins + 1 : playerB.wins,
         losses: winner === 'A' ? playerB.losses + 1 : playerB.losses,
         draws: winner === 'DRAW' ? (playerB.draws || 0) + 1 : (playerB.draws || 0),
+        lastPlayed: admin.firestore.FieldValue.serverTimestamp(),
       })
 
       // Add Elo history for player A
