@@ -8,6 +8,7 @@ export interface Player {
   losses: number
   draws: number
   createdAt: Date
+  lastPlayed?: Date  // Track when player last played for decay calculation
 }
 
 // Match types

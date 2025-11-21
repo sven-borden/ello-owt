@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       losses: 0,
       draws: 0,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastPlayed: null, // New players haven't played yet
     }
 
     const docRef = await adminDb.collection('players').add(playerData)
