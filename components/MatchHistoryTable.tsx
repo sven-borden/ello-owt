@@ -70,8 +70,15 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                       {playerAWon && <span className="text-brand-red">🏆</span>}
                       {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
-                    <div className="text-xs text-gray-custom-500">
-                      {match.playerAEloBefore} → {match.playerAEloAfter}
+                    <div className="text-xs text-gray-custom-500 flex items-center gap-1">
+                      <span>{match.playerAEloBefore} → {match.playerAEloAfter}</span>
+                      <span
+                        className={`font-semibold ${
+                          playerAChange > 0 ? 'text-green-600' : playerAChange < 0 ? 'text-red-600' : 'text-gray-custom-500'
+                        }`}
+                      >
+                        {playerAChange > 0 ? '+' : ''}{playerAChange}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center text-gray-custom-400 font-semibold">
@@ -90,8 +97,15 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                       {playerBWon && <span className="text-brand-red">🏆</span>}
                       {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
-                    <div className="text-xs text-gray-custom-500">
-                      {match.playerBEloBefore} → {match.playerBEloAfter}
+                    <div className="text-xs text-gray-custom-500 flex items-center gap-1">
+                      <span>{match.playerBEloBefore} → {match.playerBEloAfter}</span>
+                      <span
+                        className={`font-semibold ${
+                          playerBChange > 0 ? 'text-green-600' : playerBChange < 0 ? 'text-red-600' : 'text-gray-custom-500'
+                        }`}
+                      >
+                        {playerBChange > 0 ? '+' : ''}{playerBChange}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
