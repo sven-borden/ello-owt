@@ -7,9 +7,10 @@ import { calculateDecay, generateDecayMatchId, DECAY_CONFIG } from '@/lib/decay'
  *
  * This endpoint:
  * 1. Fetches all players from the database
- * 2. Calculates decay for each player based on their lastPlayed date
- * 3. Updates players who need decay
- * 4. Logs decay events in eloHistory
+ * 2. Finds the lowest Elo among all players (this becomes the decay floor)
+ * 3. Calculates decay for each player based on their lastPlayed date
+ * 4. Updates players who need decay
+ * 5. Logs decay events in eloHistory
  *
  * Can be called manually or scheduled to run periodically (e.g., weekly via cron)
  *
@@ -40,6 +41,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Find the lowest Elo among all players - this becomes the minimum decay floor
+    // Players won't decay below the lowest rated player in the system
+    let minimumElo = DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO
+    for (const doc of playersSnapshot.docs) {
+      const player = doc.data()
+      if (player.currentElo < minimumElo) {
+        minimumElo = player.currentElo
+      }
+    }
+
     const currentDate = new Date()
     const results: Array<{
       playerId: string
@@ -64,11 +75,12 @@ export async function POST(request: NextRequest) {
           : new Date(player.lastPlayed)
       }
 
-      // Calculate decay
+      // Calculate decay with dynamic minimum Elo floor
       const decayResult = calculateDecay(
         player.currentElo,
         lastPlayedDate,
-        currentDate
+        currentDate,
+        minimumElo
       )
 
       // If decay should be applied
@@ -115,7 +127,8 @@ export async function POST(request: NextRequest) {
           inactivityThresholdDays: DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS,
           decayPointsPerPeriod: DECAY_CONFIG.DECAY_POINTS_PER_PERIOD,
           decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
-          minimumElo: DECAY_CONFIG.MINIMUM_ELO,
+          minimumEloUsed: minimumElo,
+          absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
         },
         summary: {
           playersProcessed: playersSnapshot.size,

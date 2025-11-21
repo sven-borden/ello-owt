@@ -16,8 +16,8 @@ export const DECAY_CONFIG = {
   // Length of each decay period in days
   DECAY_PERIOD_DAYS: 7,
 
-  // Minimum Elo rating (decay stops here)
-  MINIMUM_ELO: 1000,
+  // Absolute minimum Elo rating (fallback if no players exist or all players are very high rated)
+  ABSOLUTE_MINIMUM_ELO: 1000,
 
   // Match ID prefix for decay events in eloHistory
   DECAY_MATCH_ID_PREFIX: 'DECAY',
@@ -29,12 +29,14 @@ export const DECAY_CONFIG = {
  * @param currentElo - The player's current Elo rating
  * @param lastPlayedDate - Date when the player last played (or null if never played)
  * @param currentDate - Current date (defaults to now, can be overridden for testing)
+ * @param minimumElo - Minimum Elo floor (defaults to lowest player Elo or absolute minimum)
  * @returns Object containing the new Elo rating and decay amount applied
  */
 export function calculateDecay(
   currentElo: number,
   lastPlayedDate: Date | null,
-  currentDate: Date = new Date()
+  currentDate: Date = new Date(),
+  minimumElo: number = DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO
 ): {
   newElo: number
   decayAmount: number
@@ -68,7 +70,7 @@ export function calculateDecay(
   }
 
   // If player is already at or below minimum Elo, no decay
-  if (currentElo <= DECAY_CONFIG.MINIMUM_ELO) {
+  if (currentElo <= minimumElo) {
     return {
       newElo: currentElo,
       decayAmount: 0,
@@ -87,7 +89,7 @@ export function calculateDecay(
 
   // Apply decay but don't go below minimum
   const newElo = Math.max(
-    DECAY_CONFIG.MINIMUM_ELO,
+    minimumElo,
     currentElo - totalDecay
   )
 
