@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
-import { calculateDecay, generateDecayMatchId, DECAY_CONFIG } from '@/lib/decay'
+import { calculateDecay, generateDecayMatchId, generateActivityBonusMatchId, DECAY_CONFIG } from '@/lib/decay'
 
 /**
- * API Route to apply Elo decay to inactive players
+ * API Route to apply Elo decay to inactive players and redistribute as activity bonus
  *
- * This endpoint:
+ * This endpoint implements a zero-sum Elo system:
  * 1. Fetches all players from the database
  * 2. Finds the lowest Elo among all players (this becomes the decay floor)
- * 3. Calculates decay for each player based on their lastPlayed date
- * 4. Updates players who need decay
- * 5. Logs decay events in eloHistory
+ * 3. Identifies active players (played within 7 days)
+ * 4. If no active players exist, skips decay entirely (system pauses)
+ * 5. Calculates decay for inactive players based on their lastPlayed date
+ * 6. Redistributes total decay as activity bonus to active players (max +5 per player)
+ * 7. Updates players and logs events in eloHistory
  *
  * Can be called manually or scheduled to run periodically (e.g., weekly via cron)
  *
@@ -63,7 +65,73 @@ export async function POST(request: NextRequest) {
     }
 
     const currentDate = new Date()
-    const results: Array<{
+    const millisecondsPerDay = 1000 * 60 * 60 * 24
+
+    // Identify active players (played within the last 7 days)
+    const activePlayers: Array<{
+      playerId: string
+      playerName: string
+      currentElo: number
+    }> = []
+
+    for (const doc of playersSnapshot.docs) {
+      const player = doc.data()
+      const playerId = doc.id
+
+      // Convert Firestore Timestamp to Date
+      let lastPlayedDate: Date | null = null
+      if (player.lastPlayed) {
+        lastPlayedDate = player.lastPlayed.toDate
+          ? player.lastPlayed.toDate()
+          : new Date(player.lastPlayed)
+      }
+
+      // Check if player is active (played within INACTIVITY_THRESHOLD_DAYS)
+      if (lastPlayedDate) {
+        const inactiveDays = Math.floor(
+          (currentDate.getTime() - lastPlayedDate.getTime()) / millisecondsPerDay
+        )
+
+        if (inactiveDays < DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS) {
+          activePlayers.push({
+            playerId,
+            playerName: player.name,
+            currentElo: player.currentElo,
+          })
+        }
+      }
+    }
+
+    // If no active players, skip decay entirely (system pauses)
+    if (activePlayers.length === 0) {
+      return NextResponse.json(
+        {
+          success: true,
+          dryRun,
+          message: 'No active players found. Decay paused.',
+          config: {
+            inactivityThresholdDays: DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS,
+            decayPointsPerPeriod: DECAY_CONFIG.DECAY_POINTS_PER_PERIOD,
+            decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
+            minimumEloUsed: minimumElo,
+            absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
+            maxWeeklyActivityBonus: DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
+          },
+          summary: {
+            playersProcessed: playersSnapshot.size,
+            activePlayers: 0,
+            playersDecayed: 0,
+            totalDecayApplied: 0,
+            activityBonusPerPlayer: 0,
+            playersBonused: 0,
+          },
+          details: [],
+        },
+        { status: 200 }
+      )
+    }
+
+    const decayResults: Array<{
       playerId: string
       playerName: string
       oldElo: number
@@ -72,7 +140,7 @@ export async function POST(request: NextRequest) {
       inactiveDays: number
     }> = []
 
-    // Process each player
+    // Calculate decay for inactive players
     for (const doc of playersSnapshot.docs) {
       const player = doc.data()
       const playerId = doc.id
@@ -80,7 +148,6 @@ export async function POST(request: NextRequest) {
       // Convert Firestore Timestamp to Date
       let lastPlayedDate: Date | null = null
       if (player.lastPlayed) {
-        // Handle both Firestore Timestamp and Date objects
         lastPlayedDate = player.lastPlayed.toDate
           ? player.lastPlayed.toDate()
           : new Date(player.lastPlayed)
@@ -96,7 +163,7 @@ export async function POST(request: NextRequest) {
 
       // If decay should be applied
       if (decayResult.shouldDecay && decayResult.decayAmount > 0) {
-        results.push({
+        decayResults.push({
           playerId,
           playerName: player.name,
           oldElo: player.currentElo,
@@ -128,7 +195,67 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const totalDecayApplied = results.reduce((sum, r) => sum + r.decayAmount, 0)
+    const totalDecayApplied = decayResults.reduce((sum, r) => sum + r.decayAmount, 0)
+
+    // Calculate activity bonus to redistribute to active players
+    const activityBonusPerPlayer = totalDecayApplied > 0
+      ? Math.min(
+          DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
+          Math.floor(totalDecayApplied / activePlayers.length)
+        )
+      : 0
+
+    const bonusResults: Array<{
+      playerId: string
+      playerName: string
+      oldElo: number
+      newElo: number
+      bonusAmount: number
+    }> = []
+
+    // Apply activity bonus to active players
+    if (activityBonusPerPlayer > 0 && !dryRun) {
+      for (const activePlayer of activePlayers) {
+        const newElo = activePlayer.currentElo + activityBonusPerPlayer
+
+        bonusResults.push({
+          playerId: activePlayer.playerId,
+          playerName: activePlayer.playerName,
+          oldElo: activePlayer.currentElo,
+          newElo,
+          bonusAmount: activityBonusPerPlayer,
+        })
+
+        await adminDb.runTransaction(async (transaction) => {
+          const playerRef = adminDb.collection('players').doc(activePlayer.playerId)
+
+          // Update player's Elo
+          transaction.update(playerRef, {
+            currentElo: newElo,
+          })
+
+          // Log activity bonus event in eloHistory
+          const historyRef = adminDb.collection('eloHistory').doc()
+          transaction.set(historyRef, {
+            playerId: activePlayer.playerId,
+            elo: newElo,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            matchId: generateActivityBonusMatchId(),
+          })
+        })
+      }
+    } else if (activityBonusPerPlayer > 0 && dryRun) {
+      // In dry run, just populate results without applying
+      for (const activePlayer of activePlayers) {
+        bonusResults.push({
+          playerId: activePlayer.playerId,
+          playerName: activePlayer.playerName,
+          oldElo: activePlayer.currentElo,
+          newElo: activePlayer.currentElo + activityBonusPerPlayer,
+          bonusAmount: activityBonusPerPlayer,
+        })
+      }
+    }
 
     return NextResponse.json(
       {
@@ -140,13 +267,18 @@ export async function POST(request: NextRequest) {
           decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
           minimumEloUsed: minimumElo,
           absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
+          maxWeeklyActivityBonus: DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
         },
         summary: {
           playersProcessed: playersSnapshot.size,
-          playersDecayed: results.length,
+          activePlayers: activePlayers.length,
+          playersDecayed: decayResults.length,
           totalDecayApplied,
+          activityBonusPerPlayer,
+          playersBonused: bonusResults.length,
         },
-        details: results,
+        decayDetails: decayResults,
+        bonusDetails: bonusResults,
       },
       { status: 200 }
     )
