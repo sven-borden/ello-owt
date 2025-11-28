@@ -165,6 +165,25 @@ export default function Home() {
                 </svg>
                 Add New Player
               </button>
+
+              {/* How It Works Button */}
+              <button
+                onClick={() => router.push('/how-it-works')}
+                className="w-full bg-[#C4A962] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#F4E4C1] hover:text-[#0A0A0A] transition-all text-sm flex items-center justify-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                How It Works
+              </button>
             </div>
           </div>
         </div>
