@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Player } from '@/lib/types'
@@ -10,6 +11,7 @@ import AddPlayerModal from '@/components/AddPlayerModal'
 import WelcomeMessage from '@/components/WelcomeMessage'
 
 export default function Home() {
+  const router = useRouter()
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
   const [isRecordMatchModalOpen, setIsRecordMatchModalOpen] = useState(false)
@@ -69,7 +71,10 @@ export default function Home() {
           </h3>
           <p className="text-3xl font-bold text-brand-red">{players.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6">
+        <div
+          onClick={() => router.push('/matches')}
+          className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6 cursor-pointer hover:shadow-md hover:border-gray-custom-400 transition-all"
+        >
           <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
             Total Matches
           </h3>
