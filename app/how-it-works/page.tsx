@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function HowItWorksPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white p-8">
@@ -17,7 +19,7 @@ export default function HowItWorksPage() {
           <h2 className="text-3xl font-bold mb-4 text-[#C4A962]">🎯 What Is This Thing?</h2>
           <div className="bg-[#1A1A1A] border border-gray-800 rounded-lg p-6">
             <p className="text-gray-300 text-lg mb-4">
-              Welcome to the OWT Swiss Chess Elo Tracker! This is where we keep track of who's crushing it at chess and who's... well, not.
+              Welcome to the OWT Swiss Chess Elo Tracker! This is where we keep track of who&apos;s crushing it at chess and who&apos;s... well, not.
             </p>
             <p className="text-gray-300 text-lg">
               Every match you play affects your Elo rating - a number that represents your chess skill. Win against strong opponents? Big gains.
@@ -43,7 +45,7 @@ export default function HowItWorksPage() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-[#F4E4C1]">The Magic Formula</h3>
               <p className="text-gray-300 mb-3">
-                The Elo system isn't just random - it's based on <em>expectations</em>. Here's how it works:
+                The Elo system isn&apos;t just random - it&apos;s based on <em>expectations</em>. Here&apos;s how it works:
               </p>
               <div className="bg-[#0A0A0A] border border-gray-700 rounded p-4 mb-3">
                 <p className="text-gray-300 mb-2">
@@ -87,7 +89,7 @@ export default function HowItWorksPage() {
                 ⚠️ Warning: Couch potatoes not welcome!
               </p>
               <p className="text-red-200/80">
-                This isn't a retirement fund for your rating. If you don't play, you lose points. That's the rule.
+                This isn&apos;t a retirement fund for your rating. If you don&apos;t play, you lose points. That&apos;s the rule.
               </p>
             </div>
 
@@ -97,8 +99,8 @@ export default function HowItWorksPage() {
                 <li>• <strong className="text-white">7 days</strong> of not playing? Time starts ticking ⏱️</li>
                 <li>• <strong className="text-white">5 points lost</strong> per week of inactivity</li>
                 <li>• Every <strong className="text-white">Friday at 6 PM UTC</strong>, the decay hammer drops 🔨</li>
-                <li>• Your rating never goes below the lowest active player (we're not monsters)</li>
-                <li>• Already at minimum? You're safe... for now</li>
+                <li>• Your rating never goes below the lowest active player (we&apos;re not monsters)</li>
+                <li>• Already at minimum? You&apos;re safe... for now</li>
               </ul>
             </div>
 
@@ -125,7 +127,7 @@ export default function HowItWorksPage() {
             <div className="bg-gradient-to-r from-[#1A1A1A] to-[#2A2A2A] border border-[#C4A962]/30 rounded-lg p-4">
               <h4 className="text-lg font-semibold mb-2 text-[#C4A962]">Why Does Decay Exist?</h4>
               <p className="text-gray-300">
-                Simple: ratings should reflect <em>current</em> skill, not ancient glory. If you're not playing,
+                Simple: ratings should reflect <em>current</em> skill, not ancient glory. If you&apos;re not playing,
                 your skills get rusty. The decay system keeps ratings accurate and prevents people from camping
                 at the top of the leaderboard while hiding under their desk.
               </p>
@@ -142,18 +144,18 @@ export default function HowItWorksPage() {
                 ✨ Good news: Active players get rewarded!
               </p>
               <p className="text-green-200/80">
-                All those points that decay away from inactive players? They don't disappear - they go to YOU.
+                All those points that decay away from inactive players? They don&apos;t disappear - they go to YOU.
               </p>
             </div>
 
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-[#F4E4C1]">How It Works</h3>
               <ul className="space-y-2 text-gray-300">
-                <li>• Play at least once every <strong className="text-white">7 days</strong> = you're active 🎮</li>
+                <li>• Play at least once every <strong className="text-white">7 days</strong> = you&apos;re active 🎮</li>
                 <li>• Every Friday, all decay points are collected in a big pot 🍯</li>
                 <li>• That pot is split equally among all active players</li>
                 <li>• Maximum bonus: <strong className="text-white">+5 points per week</strong></li>
-                <li>• It happens automatically - you don't need to do anything!</li>
+                <li>• It happens automatically - you don&apos;t need to do anything!</li>
               </ul>
             </div>
 
@@ -176,7 +178,7 @@ export default function HowItWorksPage() {
               <p className="text-gray-300">
                 This is a <strong className="text-white">zero-sum system</strong> - no points are created or destroyed.
                 When inactive players lose points through decay, active players gain those exact same points through bonuses.
-                The total Elo in the system always stays the same. It's like Robin Hood, but for chess ratings.
+                The total Elo in the system always stays the same. It&apos;s like Robin Hood, but for chess ratings.
               </p>
             </div>
           </div>
@@ -234,7 +236,7 @@ export default function HowItWorksPage() {
               </li>
               <li className="flex items-start">
                 <span className="text-[#C4A962] mr-2">→</span>
-                <span><strong className="text-white">Don't fear losses:</strong> Every match gives you data. Losing to someone stronger doesn't hurt much</span>
+                <span><strong className="text-white">Don&apos;t fear losses:</strong> Every match gives you data. Losing to someone stronger doesn&apos;t hurt much</span>
               </li>
               <li className="flex items-start">
                 <span className="text-[#C4A962] mr-2">→</span>
@@ -250,12 +252,12 @@ export default function HowItWorksPage() {
 
         {/* Back Button */}
         <div className="text-center">
-          <a
+          <Link
             href="/"
             className="inline-block bg-[#C4A962] hover:bg-[#F4E4C1] text-[#0A0A0A] font-semibold py-3 px-8 rounded-lg transition-colors"
           >
             Back to Dashboard
-          </a>
+          </Link>
         </div>
       </div>
     </div>
