@@ -1,5 +1,8 @@
 /**
  * Tests for Elo decay functionality
+ *
+ * Note: These tests focus on the decay calculation logic.
+ * Activity bonus redistribution is tested at the API route level.
  */
 
 import { calculateDecay, DECAY_CONFIG } from './decay'
@@ -56,18 +59,18 @@ describe('Elo Decay System', () => {
       const lastPlayed = new Date('2024-03-03T00:00:00Z')
       const result = calculateDecay(1002, lastPlayed, CURRENT_DATE)
 
-      expect(result.newElo).toBe(DECAY_CONFIG.MINIMUM_ELO)
+      expect(result.newElo).toBe(DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO)
       expect(result.decayAmount).toBe(2) // Only 2 points to reach minimum
     })
 
     it('should not decay if already at minimum Elo', () => {
       // Player at minimum, inactive for 90 days
       const lastPlayed = new Date('2024-03-03T00:00:00Z')
-      const result = calculateDecay(DECAY_CONFIG.MINIMUM_ELO, lastPlayed, CURRENT_DATE)
+      const result = calculateDecay(DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO, lastPlayed, CURRENT_DATE)
 
       expect(result.shouldDecay).toBe(false)
       expect(result.decayAmount).toBe(0)
-      expect(result.newElo).toBe(DECAY_CONFIG.MINIMUM_ELO)
+      expect(result.newElo).toBe(DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO)
     })
 
     it('should calculate exact threshold boundary correctly', () => {

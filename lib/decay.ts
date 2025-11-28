@@ -1,8 +1,12 @@
 /**
- * Elo Decay System
+ * Elo Decay and Activity Bonus System
  *
- * This module handles Elo rating decay for inactive players to prevent
- * users from sitting on high ratings without playing.
+ * This module handles:
+ * 1. Elo rating decay for inactive players (prevent rating hoarding)
+ * 2. Activity bonus redistribution (decay Elo is shared among active players)
+ *
+ * The system maintains a zero-sum Elo pool by redistributing points
+ * lost through decay to players who remain active.
  */
 
 // Decay configuration constants
@@ -19,8 +23,14 @@ export const DECAY_CONFIG = {
   // Absolute minimum Elo rating (fallback if no players exist or all players are very high rated)
   ABSOLUTE_MINIMUM_ELO: 1000,
 
+  // Maximum Elo bonus per active player when redistributing decay
+  MAX_WEEKLY_ACTIVITY_BONUS: 5,
+
   // Match ID prefix for decay events in eloHistory
   DECAY_MATCH_ID_PREFIX: 'DECAY',
+
+  // Match ID prefix for activity bonus events in eloHistory
+  ACTIVITY_BONUS_MATCH_ID_PREFIX: 'ACTIVITY_BONUS',
 }
 
 /**
@@ -115,4 +125,18 @@ export function generateDecayMatchId(): string {
  */
 export function isDecayEvent(matchId: string): boolean {
   return matchId.startsWith(DECAY_CONFIG.DECAY_MATCH_ID_PREFIX)
+}
+
+/**
+ * Generate an activity bonus match ID for eloHistory tracking
+ */
+export function generateActivityBonusMatchId(): string {
+  return `${DECAY_CONFIG.ACTIVITY_BONUS_MATCH_ID_PREFIX}-${Date.now()}`
+}
+
+/**
+ * Check if a match ID represents an activity bonus event
+ */
+export function isActivityBonusEvent(matchId: string): boolean {
+  return matchId.startsWith(DECAY_CONFIG.ACTIVITY_BONUS_MATCH_ID_PREFIX)
 }
