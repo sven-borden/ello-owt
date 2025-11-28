@@ -19,6 +19,17 @@ import { calculateDecay, generateDecayMatchId, DECAY_CONFIG } from '@/lib/decay'
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verify cron secret to prevent unauthorized access
+    const authHeader = request.headers.get('Authorization')
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+
+    if (authHeader !== expectedAuth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const dryRun = searchParams.get('dryRun') === 'true'
 
