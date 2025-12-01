@@ -18,7 +18,7 @@ export interface Match {
   playerBId: string
   playerAName: string
   playerBName: string
-  winner: 'A' | 'B' | 'DRAW'
+  winner: 'A' | 'B' | 'DRAW' | 'DECAY' | 'ACTIVITY_BONUS'
   playerAEloBefore: number
   playerBEloBefore: number
   playerAEloAfter: number
