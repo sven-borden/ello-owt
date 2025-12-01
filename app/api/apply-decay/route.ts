@@ -3,10 +3,40 @@ import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 import { calculateDecay, generateDecayMatchId, generateActivityBonusMatchId, DECAY_CONFIG } from '@/lib/decay'
 
 /**
- * GET handler - Returns configuration and status information
- * Useful for debugging and verifying the endpoint is accessible
+ * GET handler - Handles cron job execution and returns config info for manual queries
+ * When called with ?cron=true and valid CRON_SECRET, executes decay logic
+ * Otherwise returns configuration and status information
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const isCronJob = searchParams.get('cron') === 'true'
+
+  // If this is a cron job request, verify auth and execute decay
+  if (isCronJob) {
+    console.log('[DECAY] Cron job triggered via GET')
+
+    // Verify cron secret
+    const authHeader = request.headers.get('Authorization')
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+
+    console.log('[DECAY] Auth check - Has auth header:', !!authHeader)
+    console.log('[DECAY] Auth check - Has CRON_SECRET env var:', !!process.env.CRON_SECRET)
+
+    if (authHeader !== expectedAuth) {
+      console.log('[DECAY] Authorization failed')
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    console.log('[DECAY] Authorization successful - executing decay via GET')
+
+    // Execute the decay logic by calling the POST handler
+    return POST(request)
+  }
+
+  // Regular GET request - return config info
   console.log('[DECAY] GET request received - returning config info')
 
   return NextResponse.json({
@@ -22,7 +52,8 @@ export async function GET() {
       method: 'POST',
       authentication: 'Bearer token required (CRON_SECRET)',
       queryParams: {
-        dryRun: 'Optional - Set to "true" to simulate without applying changes'
+        dryRun: 'Optional - Set to "true" to simulate without applying changes',
+        cron: 'Internal - Set to "true" for cron job execution via GET'
       }
     },
     cronSchedule: 'Every Friday at 6 PM UTC (0 18 * * 5)',

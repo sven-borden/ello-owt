@@ -4,12 +4,8 @@
   "installCommand": "npm install",
   "crons": [
     {
-      "path": "/api/apply-decay",
-      "schedule": "0 18 * * 5",
-      "method": "POST",
-      "headers": {
-        "Authorization": "Bearer ${CRON_SECRET}"
-      }
+      "path": "/api/apply-decay?cron=true",
+      "schedule": "0 18 * * 5"
     }
   ]
 }
