@@ -258,10 +258,26 @@ export async function POST(request: NextRequest) {
         if (!dryRun) {
           await adminDb.runTransaction(async (transaction) => {
             const playerRef = adminDb.collection('players').doc(playerId)
+            const matchId = generateDecayMatchId()
 
             // Update player's Elo
             transaction.update(playerRef, {
               currentElo: decayResult.newElo,
+            })
+
+            // Create visible match record for decay event
+            const matchRef = adminDb.collection('matches').doc(matchId)
+            transaction.set(matchRef, {
+              playerAId: playerId,
+              playerBId: 'SYSTEM',
+              playerAName: player.name,
+              playerBName: 'Decay System',
+              winner: 'DECAY',
+              playerAEloBefore: player.currentElo,
+              playerBEloBefore: 0,
+              playerAEloAfter: decayResult.newElo,
+              playerBEloAfter: 0,
+              timestamp: admin.firestore.FieldValue.serverTimestamp(),
             })
 
             // Log decay event in eloHistory
@@ -270,7 +286,7 @@ export async function POST(request: NextRequest) {
               playerId,
               elo: decayResult.newElo,
               timestamp: admin.firestore.FieldValue.serverTimestamp(),
-              matchId: generateDecayMatchId(),
+              matchId: matchId,
             })
           })
         }
@@ -323,10 +339,26 @@ export async function POST(request: NextRequest) {
 
         await adminDb.runTransaction(async (transaction) => {
           const playerRef = adminDb.collection('players').doc(activePlayer.playerId)
+          const matchId = generateActivityBonusMatchId()
 
           // Update player's Elo
           transaction.update(playerRef, {
             currentElo: newElo,
+          })
+
+          // Create visible match record for activity bonus event
+          const matchRef = adminDb.collection('matches').doc(matchId)
+          transaction.set(matchRef, {
+            playerAId: activePlayer.playerId,
+            playerBId: 'SYSTEM',
+            playerAName: activePlayer.playerName,
+            playerBName: 'Activity Bonus',
+            winner: 'ACTIVITY_BONUS',
+            playerAEloBefore: activePlayer.currentElo,
+            playerBEloBefore: 0,
+            playerAEloAfter: newElo,
+            playerBEloAfter: 0,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
           })
 
           // Log activity bonus event in eloHistory
@@ -335,7 +367,7 @@ export async function POST(request: NextRequest) {
             playerId: activePlayer.playerId,
             elo: newElo,
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            matchId: generateActivityBonusMatchId(),
+            matchId: matchId,
           })
         })
       }

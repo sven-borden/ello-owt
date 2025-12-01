@@ -43,12 +43,69 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
           </thead>
           <tbody>
             {matches.map((match) => {
+              const isSystemEvent = match.winner === 'DECAY' || match.winner === 'ACTIVITY_BONUS'
+              const isDecay = match.winner === 'DECAY'
+              const isActivityBonus = match.winner === 'ACTIVITY_BONUS'
               const playerAWon = match.winner === 'A'
               const playerBWon = match.winner === 'B'
               const isDraw = match.winner === 'DRAW'
               const playerAChange = match.playerAEloAfter - match.playerAEloBefore
               const playerBChange = match.playerBEloAfter - match.playerBEloBefore
 
+              // System event row (decay or activity bonus)
+              if (isSystemEvent) {
+                return (
+                  <tr
+                    key={match.id}
+                    className="border-b border-gray-custom-200 last:border-0 hover:bg-off-white transition-colors bg-blue-50"
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-custom-600 whitespace-nowrap">
+                      {format(match.timestamp, 'MMM dd, yyyy HH:mm')}
+                    </td>
+                    <td className="px-6 py-4" colSpan={3}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">
+                          {isDecay ? '⏱️' : '⭐'}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/players/${match.playerAId}`}
+                              className="font-semibold hover:text-brand-red transition-colors text-gray-custom-700"
+                            >
+                              {match.playerAName}
+                            </Link>
+                            <span className="text-gray-custom-500">•</span>
+                            <span className="text-sm font-medium text-gray-custom-600">
+                              {isDecay ? 'Inactivity Decay' : 'Activity Bonus'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-custom-500">
+                            {match.playerAEloBefore} → {match.playerAEloAfter}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-xs font-medium text-gray-custom-500 bg-gray-custom-100 px-2 py-1 rounded">
+                        System Event
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span
+                        className={`text-sm font-semibold ${
+                          playerAChange > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {playerAChange > 0 ? '+' : ''}
+                        {playerAChange}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              }
+
+              // Regular match row
               return (
                 <tr
                   key={match.id}
