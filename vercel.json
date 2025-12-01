@@ -5,7 +5,11 @@
   "crons": [
     {
       "path": "/api/apply-decay",
-      "schedule": "0 18 * * 5"
+      "schedule": "0 18 * * 5",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer ${CRON_SECRET}"
+      }
     }
   ]
 }
