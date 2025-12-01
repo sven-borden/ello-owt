@@ -18,9 +18,11 @@ export default function RootLayout({
         <header className="border-b border-gray-custom-300 bg-white">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-brand-red">
-                OWT Chess Elo
-              </h1>
+              <Link href="/">
+                <h1 className="text-2xl font-bold text-brand-red cursor-pointer hover:opacity-80 transition-opacity">
+                  OWT Chess Elo
+                </h1>
+              </Link>
               <div className="flex gap-6">
                 <Link href="/" className="text-gray-custom-700 hover:text-brand-red transition-colors">
                   Dashboard
