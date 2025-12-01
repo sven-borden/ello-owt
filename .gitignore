@@ -29,6 +29,7 @@ firebase-debug.log*
 firestore-debug.log*
 ui-debug.log*
 database-debug.log*
+service-account-key.json
 
 # local env files
 .env*.local
