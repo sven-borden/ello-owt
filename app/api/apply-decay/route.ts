@@ -3,6 +3,34 @@ import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 import { calculateDecay, generateDecayMatchId, generateActivityBonusMatchId, DECAY_CONFIG } from '@/lib/decay'
 
 /**
+ * GET handler - Returns configuration and status information
+ * Useful for debugging and verifying the endpoint is accessible
+ */
+export async function GET() {
+  console.log('[DECAY] GET request received - returning config info')
+
+  return NextResponse.json({
+    message: 'Decay system endpoint',
+    config: {
+      inactivityThresholdDays: DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS,
+      decayPointsPerPeriod: DECAY_CONFIG.DECAY_POINTS_PER_PERIOD,
+      decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
+      absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
+      maxWeeklyActivityBonus: DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
+    },
+    usage: {
+      method: 'POST',
+      authentication: 'Bearer token required (CRON_SECRET)',
+      queryParams: {
+        dryRun: 'Optional - Set to "true" to simulate without applying changes'
+      }
+    },
+    cronSchedule: 'Every Friday at 6 PM UTC (0 18 * * 5)',
+    timestamp: new Date().toISOString(),
+  })
+}
+
+/**
  * API Route to apply Elo decay to inactive players and redistribute as activity bonus
  *
  * This endpoint implements a zero-sum Elo system:
@@ -20,26 +48,41 @@ import { calculateDecay, generateDecayMatchId, generateActivityBonusMatchId, DEC
  * - dryRun: If "true", only simulates decay without applying changes
  */
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  console.log('[DECAY] Function started at:', new Date().toISOString())
+
   try {
     // Verify cron secret to prevent unauthorized access
     const authHeader = request.headers.get('Authorization')
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
 
+    console.log('[DECAY] Auth check - Has auth header:', !!authHeader)
+    console.log('[DECAY] Auth check - Has CRON_SECRET env var:', !!process.env.CRON_SECRET)
+
     if (authHeader !== expectedAuth) {
+      console.log('[DECAY] Authorization failed')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
+    console.log('[DECAY] Authorization successful')
+
     const { searchParams } = new URL(request.url)
     const dryRun = searchParams.get('dryRun') === 'true'
+
+    console.log('[DECAY] Dry run mode:', dryRun)
 
     const adminDb = getAdminDb()
     const admin = getAdmin()
 
+    console.log('[DECAY] Firebase Admin initialized')
+
     // Fetch all players
+    console.log('[DECAY] Fetching all players...')
     const playersSnapshot = await adminDb.collection('players').get()
+    console.log('[DECAY] Players fetched:', playersSnapshot.size)
 
     if (playersSnapshot.empty) {
       return NextResponse.json(
@@ -64,8 +107,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('[DECAY] Minimum Elo floor determined:', minimumElo)
+
     const currentDate = new Date()
     const millisecondsPerDay = 1000 * 60 * 60 * 24
+
+    console.log('[DECAY] Current date:', currentDate.toISOString())
 
     // Identify active players (played within the last 7 days)
     const activePlayers: Array<{
@@ -102,8 +149,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('[DECAY] Active players identified:', activePlayers.length)
+    console.log('[DECAY] Active players:', activePlayers.map(p => ({ name: p.playerName, elo: p.currentElo })))
+
     // If no active players, skip decay entirely (system pauses)
     if (activePlayers.length === 0) {
+      console.log('[DECAY] No active players found - decay paused')
       return NextResponse.json(
         {
           success: true,
@@ -197,6 +248,17 @@ export async function POST(request: NextRequest) {
 
     const totalDecayApplied = decayResults.reduce((sum, r) => sum + r.decayAmount, 0)
 
+    console.log('[DECAY] Decay calculation complete')
+    console.log('[DECAY] Players decayed:', decayResults.length)
+    console.log('[DECAY] Total decay applied:', totalDecayApplied)
+    console.log('[DECAY] Decay details:', decayResults.map(r => ({
+      name: r.playerName,
+      oldElo: r.oldElo,
+      newElo: r.newElo,
+      decay: r.decayAmount,
+      inactiveDays: r.inactiveDays
+    })))
+
     // Calculate activity bonus to redistribute to active players
     const activityBonusPerPlayer = totalDecayApplied > 0
       ? Math.min(
@@ -204,6 +266,8 @@ export async function POST(request: NextRequest) {
           Math.floor(totalDecayApplied / activePlayers.length)
         )
       : 0
+
+    console.log('[DECAY] Activity bonus per player:', activityBonusPerPlayer)
 
     const bonusResults: Array<{
       playerId: string
@@ -257,33 +321,48 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        dryRun,
-        config: {
-          inactivityThresholdDays: DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS,
-          decayPointsPerPeriod: DECAY_CONFIG.DECAY_POINTS_PER_PERIOD,
-          decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
-          minimumEloUsed: minimumElo,
-          absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
-          maxWeeklyActivityBonus: DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
-        },
-        summary: {
-          playersProcessed: playersSnapshot.size,
-          activePlayers: activePlayers.length,
-          playersDecayed: decayResults.length,
-          totalDecayApplied,
-          activityBonusPerPlayer,
-          playersBonused: bonusResults.length,
-        },
-        decayDetails: decayResults,
-        bonusDetails: bonusResults,
+    const executionTime = Date.now() - startTime
+
+    console.log('[DECAY] Bonus application complete')
+    console.log('[DECAY] Players receiving bonus:', bonusResults.length)
+    console.log('[DECAY] Bonus details:', bonusResults.map(r => ({
+      name: r.playerName,
+      oldElo: r.oldElo,
+      newElo: r.newElo,
+      bonus: r.bonusAmount
+    })))
+
+    const response = {
+      success: true,
+      dryRun,
+      config: {
+        inactivityThresholdDays: DECAY_CONFIG.INACTIVITY_THRESHOLD_DAYS,
+        decayPointsPerPeriod: DECAY_CONFIG.DECAY_POINTS_PER_PERIOD,
+        decayPeriodDays: DECAY_CONFIG.DECAY_PERIOD_DAYS,
+        minimumEloUsed: minimumElo,
+        absoluteMinimumElo: DECAY_CONFIG.ABSOLUTE_MINIMUM_ELO,
+        maxWeeklyActivityBonus: DECAY_CONFIG.MAX_WEEKLY_ACTIVITY_BONUS,
       },
-      { status: 200 }
-    )
+      summary: {
+        playersProcessed: playersSnapshot.size,
+        activePlayers: activePlayers.length,
+        playersDecayed: decayResults.length,
+        totalDecayApplied,
+        activityBonusPerPlayer,
+        playersBonused: bonusResults.length,
+      },
+      decayDetails: decayResults,
+      bonusDetails: bonusResults,
+    }
+
+    console.log('[DECAY] Function completed successfully')
+    console.log('[DECAY] Execution time:', executionTime, 'ms')
+    console.log('[DECAY] Summary:', response.summary)
+
+    return NextResponse.json(response, { status: 200 })
   } catch (error) {
-    console.error('Error applying decay:', error)
+    console.error('[DECAY] ERROR - Function failed:', error)
+    console.error('[DECAY] ERROR - Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
 
     const message = error instanceof Error ? error.message : 'Failed to apply decay'
     return NextResponse.json(
