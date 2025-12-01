@@ -22,15 +22,18 @@ export default function RootLayout({
         <header className="border-b border-gray-custom-300 bg-white">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex items-center justify-between">
-              <Link href="/" className="flex items-center">
+              <Link href="/" className="flex items-center gap-3">
                 <Image
                   src="/logo.png"
-                  alt="OWT Chess Elo"
-                  width={180}
-                  height={60}
-                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                  alt="OWT Logo"
+                  width={40}
+                  height={40}
+                  className="cursor-pointer"
                   priority
                 />
+                <h1 className="text-2xl font-bold text-brand-red hover:opacity-80 transition-opacity">
+                  OWT Chess Elo
+                </h1>
               </Link>
               <div className="flex gap-6">
                 <Link href="/" className="text-gray-custom-700 hover:text-brand-red transition-colors">
