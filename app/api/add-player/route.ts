@@ -17,10 +17,22 @@ export async function POST(request: NextRequest) {
     const adminDb = getAdminDb()
     const admin = getAdmin()
 
+    // Calculate average ELO from all existing players
+    const playersSnapshot = await adminDb.collection('players').get()
+    let startingElo = STARTING_ELO // Default to 1200 if no players exist
+
+    if (!playersSnapshot.empty) {
+      const totalElo = playersSnapshot.docs.reduce((sum, doc) => {
+        const playerData = doc.data()
+        return sum + (playerData.currentElo || 0)
+      }, 0)
+      startingElo = Math.round(totalElo / playersSnapshot.size)
+    }
+
     // Create new player document
     const playerData = {
       name: name.trim(),
-      currentElo: STARTING_ELO,
+      currentElo: startingElo,
       matchesPlayed: 0,
       wins: 0,
       losses: 0,
@@ -35,7 +47,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         playerId: docRef.id,
-        message: `Player ${name} added successfully with starting Elo of ${STARTING_ELO}`
+        message: `Player ${name} added successfully with starting Elo of ${startingElo}`
       },
       { status: 201 }
     )
