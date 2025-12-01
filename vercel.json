@@ -4,7 +4,7 @@
   "installCommand": "npm install",
   "crons": [
     {
-      "path": "/api/apply-decay",
+      "path": "/api/apply-decay?cron=true",
       "schedule": "0 18 * * 5"
     }
   ]
