@@ -26,8 +26,9 @@ export default function EloChart({ history }: EloChartProps) {
   const sortedHistory = [...history].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 
   // Format data for Recharts based on view mode
-  const chartData = sortedHistory.map((entry) => ({
+  const chartData = sortedHistory.map((entry, index) => ({
     timestamp: entry.timestamp.getTime(),
+    matchIndex: index,
     date: format(entry.timestamp, 'MMM dd'),
     fullDate: format(entry.timestamp, 'MMM dd, yyyy HH:mm'),
     elo: entry.elo,
@@ -64,12 +65,16 @@ export default function EloChart({ history }: EloChartProps) {
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
           <XAxis
-            dataKey={viewMode === 'time' ? 'timestamp' : 'date'}
+            dataKey={viewMode === 'time' ? 'timestamp' : 'matchIndex'}
             stroke="#696969"
             style={{ fontSize: '12px' }}
-            tickFormatter={(value) => {
+            tickFormatter={(value, index) => {
               if (viewMode === 'time') {
                 return format(new Date(value), 'MMM dd')
+              }
+              // In matches mode, show the date for this match index
+              if (chartData[value]) {
+                return chartData[value].date
               }
               return value
             }}
