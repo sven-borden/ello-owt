@@ -34,6 +34,13 @@ export default function EloChart({ history }: EloChartProps) {
     elo: entry.elo,
   }))
 
+  // Calculate Y-axis domain: floor min to nearest 10, ceiling max to nearest 10
+  const eloValues = chartData.map(d => d.elo)
+  const minElo = Math.min(...eloValues)
+  const maxElo = Math.max(...eloValues)
+  const yAxisMin = Math.floor(minElo / 10) * 10
+  const yAxisMax = Math.ceil(maxElo / 10) * 10
+
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-custom-300 p-6">
       <div className="flex justify-between items-center mb-6">
@@ -85,7 +92,7 @@ export default function EloChart({ history }: EloChartProps) {
           <YAxis
             stroke="#696969"
             style={{ fontSize: '12px' }}
-            domain={['dataMin - 10', 'dataMax + 10']}
+            domain={[yAxisMin, yAxisMax]}
           />
           <Tooltip
             contentStyle={{
