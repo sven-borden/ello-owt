@@ -85,7 +85,7 @@ export default function EloChart({ history }: EloChartProps) {
           <YAxis
             stroke="#696969"
             style={{ fontSize: '12px' }}
-            domain={['dataMin - 50', 'dataMax + 50']}
+            domain={['dataMin - 10', 'dataMax + 10']}
           />
           <Tooltip
             contentStyle={{
