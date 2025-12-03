@@ -63,69 +63,15 @@ export default function Home() {
       {/* Welcome Message */}
       <WelcomeMessage />
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6">
-          <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-            Total Players
-          </h3>
-          <p className="text-3xl font-bold text-brand-red">{players.length}</p>
-        </div>
-        <div
-          onClick={() => router.push('/matches')}
-          className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6 cursor-pointer hover:shadow-md hover:border-gray-custom-400 transition-all"
-        >
-          <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-            Total Matches
-          </h3>
-          <p className="text-3xl font-bold text-brand-red">
-            {players.reduce((sum, p) => sum + p.matchesPlayed, 0) / 2}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6">
-          <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-            Average Elo
-          </h3>
-          <p className="text-3xl font-bold text-brand-red">
-            {players.length > 0
-              ? Math.round(
-                  players.reduce((sum, p) => sum + p.currentElo, 0) /
-                    players.length
-                )
-              : 0}
-          </p>
-        </div>
-      </div>
-
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Main Content (Leaderboard) */}
-        <div className="lg:col-span-2">
-          {players.length > 0 ? (
-            <LeaderboardCard players={players} />
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-12 text-center">
-              <div className="max-w-md mx-auto">
-                <div className="text-5xl mb-4">♟️</div>
-                <p className="text-gray-custom-700 text-lg font-semibold mb-2">
-                  No players yet
-                </p>
-                <p className="text-sm text-gray-custom-500">
-                  Add your first player using the form on the right to get started.
-                  Players start with an Elo rating of 1200.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Sidebar */}
+        {/* Left Column - Sidebar with Quick Actions and Stats */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-6 sticky top-6">
             <h2 className="text-xl font-bold text-almost-black mb-6">
               Quick Actions
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-3 mb-6">
               {/* Record Match Button */}
               {players.length >= 2 && (
                 <button
@@ -185,7 +131,66 @@ export default function Home() {
                 How It Works
               </button>
             </div>
+
+            {/* Stats Section */}
+            <div className="border-t border-gray-custom-200 pt-6 space-y-4">
+              {/* Total Matches - Clickable */}
+              <div
+                onClick={() => router.push('/matches')}
+                className="cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-all border border-transparent hover:border-gray-custom-300"
+              >
+                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
+                  Total Matches
+                </h3>
+                <p className="text-3xl font-bold text-brand-red">
+                  {players.reduce((sum, p) => sum + p.matchesPlayed, 0) / 2}
+                </p>
+              </div>
+
+              {/* Average Elo */}
+              <div className="p-4 rounded-lg">
+                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
+                  Average Elo
+                </h3>
+                <p className="text-3xl font-bold text-brand-red">
+                  {players.length > 0
+                    ? Math.round(
+                        players.reduce((sum, p) => sum + p.currentElo, 0) /
+                          players.length
+                      )
+                    : 0}
+                </p>
+              </div>
+
+              {/* Total Players */}
+              <div className="p-4 rounded-lg">
+                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
+                  Total Players
+                </h3>
+                <p className="text-3xl font-bold text-brand-red">{players.length}</p>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Right Column - Main Content (Leaderboard) */}
+        <div className="lg:col-span-2">
+          {players.length > 0 ? (
+            <LeaderboardCard players={players} />
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-12 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="text-5xl mb-4">♟️</div>
+                <p className="text-gray-custom-700 text-lg font-semibold mb-2">
+                  No players yet
+                </p>
+                <p className="text-sm text-gray-custom-500">
+                  Add your first player using the form on the left to get started.
+                  Players start with an Elo rating of 1200.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
