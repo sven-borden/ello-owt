@@ -1,5 +1,8 @@
 # OWT Chess Elo Tracker
 
+<img width="1458" height="709" alt="image" src="https://github.com/user-attachments/assets/9e6f61bc-2032-4cf0-ad3e-76d89bd8cea7" />
+
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
