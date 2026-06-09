@@ -30,19 +30,19 @@ export default function LeaderboardCard({ players }: LeaderboardCardProps) {
               <Link
                 key={player.id}
                 href={`/players/${player.id}`}
-                className="flex items-center justify-between p-4 bg-off-white rounded-lg hover:bg-gray-custom-100 hover:shadow-md transition-all"
+                className="flex items-center justify-between gap-3 p-4 bg-off-white rounded-lg hover:bg-gray-custom-100 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-brand-red"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="flex flex-col items-center min-w-[50px]">
-                    <span className={`text-2xl ${badge.color}`}>
+                    <span className={`text-2xl ${badge.color}`} aria-hidden="true">
                       {badge.emoji}
                     </span>
                     <span className="text-[10px] font-bold text-gray-custom-600 uppercase tracking-wide">
                       {badge.title}
                     </span>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-base text-almost-black">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-base text-almost-black truncate">
                       {player.name}
                     </h3>
                     <p className="text-xs text-gray-custom-600">
@@ -50,7 +50,7 @@ export default function LeaderboardCard({ players }: LeaderboardCardProps) {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <div className="text-2xl font-bold text-brand-red">
                     {player.currentElo}
                   </div>

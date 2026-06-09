@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useId, useRef } from 'react'
 
 interface ModalProps {
   isOpen: boolean
@@ -9,24 +9,56 @@ interface ModalProps {
   children: React.ReactNode
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  // Close on Escape key
+  const titleId = useId()
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previouslyFocused = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+    if (!isOpen) return
+
+    previouslyFocused.current = document.activeElement as HTMLElement
+    document.body.style.overflow = 'hidden'
+
+    const focusable = () =>
+      Array.from(modalRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+
+    // Move focus into the modal on open
+    focusable()[0]?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
         onClose()
+        return
+      }
+
+      if (e.key !== 'Tab') return
+
+      const items = focusable()
+      if (items.length === 0) return
+
+      const first = items[0]
+      const last = items[items.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
       }
     }
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-      // Prevent body scroll when modal is open
-      document.body.style.overflow = 'hidden'
-    }
+    document.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'unset'
+      // Restore focus to the trigger
+      previouslyFocused.current?.focus()
     }
   }, [isOpen, onClose])
 
@@ -38,18 +70,25 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       <div
         className="absolute inset-0 bg-almost-black bg-opacity-50 transition-opacity"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-custom-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-almost-black">
+          <h2 id={titleId} className="text-xl font-bold text-almost-black">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-custom-500 hover:text-gray-custom-700 transition-colors"
+            className="text-gray-custom-600 hover:text-gray-custom-800 transition-colors"
             aria-label="Close modal"
           >
             <svg
@@ -60,6 +99,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
               strokeWidth="2"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path d="M6 18L18 6M6 6l12 12" />
             </svg>

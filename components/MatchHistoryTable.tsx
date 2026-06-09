@@ -10,7 +10,9 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
   if (matches.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md border border-gray-custom-300 p-12 text-center">
-        <p className="text-gray-custom-600 text-lg">No matches recorded yet</p>
+        <p className="text-gray-custom-600 text-lg">
+          No matches yet. Record one to see it here.
+        </p>
       </div>
     )
   }
@@ -80,14 +82,14 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                               {isDecay ? 'Inactivity Decay' : 'Activity Bonus'}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-custom-500">
+                          <div className="text-xs text-gray-custom-600">
                             {match.playerAEloBefore} → {match.playerAEloAfter}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="text-xs font-medium text-gray-custom-500 bg-gray-custom-100 px-2 py-1 rounded">
+                      <span className="text-xs font-medium text-gray-custom-600 bg-gray-custom-100 px-2 py-1 rounded">
                         System Event
                       </span>
                     </td>
@@ -127,11 +129,11 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                       {playerAWon && <span className="text-brand-red">🏆</span>}
                       {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
-                    <div className="text-xs text-gray-custom-500">
+                    <div className="text-xs text-gray-custom-600">
                       {match.playerAEloBefore} → {match.playerAEloAfter}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center text-gray-custom-400 font-semibold">
+                  <td className="px-6 py-4 text-center text-gray-custom-600 font-semibold">
                     VS
                   </td>
                   <td className="px-6 py-4">
@@ -147,7 +149,7 @@ export default function MatchHistoryTable({ matches }: MatchHistoryTableProps) {
                       {playerBWon && <span className="text-brand-red">🏆</span>}
                       {isDraw && <span className="text-gray-custom-500">🤝</span>}
                     </div>
-                    <div className="text-xs text-gray-custom-500">
+                    <div className="text-xs text-gray-custom-600">
                       {match.playerBEloBefore} → {match.playerBEloAfter}
                     </div>
                   </td>

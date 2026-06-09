@@ -28,16 +28,20 @@ export default function WinnerSelector({
   }
 
   return (
-    <div className="space-y-2">
-      <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide">
+    <div className="space-y-2" role="group" aria-labelledby="match-result-label">
+      <span
+        id="match-result-label"
+        className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide"
+      >
         Match Result
-      </label>
+      </span>
       <div className="grid grid-cols-3 gap-2">
         {/* Player A Wins */}
         <button
           type="button"
           onClick={() => onWinnerChange('A')}
           disabled={disabled}
+          aria-pressed={winner === 'A'}
           className={`${getButtonClass('A')} rounded-l-lg`}
         >
           <div className="flex flex-col items-center gap-1">
@@ -54,6 +58,7 @@ export default function WinnerSelector({
           type="button"
           onClick={() => onWinnerChange('DRAW')}
           disabled={disabled}
+          aria-pressed={winner === 'DRAW'}
           className={getButtonClass('DRAW')}
         >
           <div className="flex flex-col items-center gap-1">
@@ -68,6 +73,7 @@ export default function WinnerSelector({
           type="button"
           onClick={() => onWinnerChange('B')}
           disabled={disabled}
+          aria-pressed={winner === 'B'}
           className={`${getButtonClass('B')} rounded-r-lg`}
         >
           <div className="flex flex-col items-center gap-1">

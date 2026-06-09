@@ -22,7 +22,7 @@ export default function HowItWorksPage() {
               Welcome to the OWT Swiss Chess Elo Tracker! This is where we keep track of who&apos;s crushing it at chess and who&apos;s... well, not.
             </p>
             <p className="text-gray-custom-700 text-lg">
-              Every match you play affects your Elo rating - a number that represents your chess skill. Win against strong opponents? Big gains.
+              Every match you play affects your Elo rating, a number that represents your chess skill. Win against strong opponents? Big gains.
               Lose to someone with a lower rating? Ouch. The system is fair, mathematical, and completely merciless.
             </p>
           </div>
@@ -35,7 +35,7 @@ export default function HowItWorksPage() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-almost-black">The Basics</h3>
               <ul className="space-y-2 text-gray-custom-700">
-                <li>• Everyone starts at <strong className="text-brand-red">1200 Elo</strong> - perfectly average, like ordering vanilla ice cream</li>
+                <li>• Everyone starts at <strong className="text-brand-red">1200 Elo</strong>, perfectly average (like ordering vanilla ice cream)</li>
                 <li>• Win a match? Your rating goes up 📈</li>
                 <li>• Lose a match? Your rating goes down 📉</li>
                 <li>• Draw? Everyone gets a tiny adjustment</li>
@@ -45,7 +45,7 @@ export default function HowItWorksPage() {
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-almost-black">The Magic Formula</h3>
               <p className="text-gray-custom-700 mb-3">
-                The Elo system isn&apos;t just random - it&apos;s based on <em>expectations</em>. Here&apos;s how it works:
+                The Elo system isn&apos;t random; it&apos;s based on <em>expectations</em>. Here&apos;s how it works:
               </p>
               <div className="bg-gray-custom-50 border border-gray-custom-300 rounded p-4 mb-3">
                 <p className="text-gray-custom-700 mb-2">
@@ -144,7 +144,7 @@ export default function HowItWorksPage() {
                 ✨ Good news: Active players get rewarded!
               </p>
               <p className="text-green-700">
-                All those points that decay away from inactive players? They don&apos;t disappear - they go to YOU.
+                All those points that decay away from inactive players? They don&apos;t disappear; they go to YOU.
               </p>
             </div>
 
@@ -155,7 +155,7 @@ export default function HowItWorksPage() {
                 <li>• Every Friday, all decay points are collected in a big pot 🍯</li>
                 <li>• That pot is split equally among all active players</li>
                 <li>• Maximum bonus: <strong className="text-almost-black">+5 points per week</strong></li>
-                <li>• It happens automatically - you don&apos;t need to do anything!</li>
+                <li>• It happens automatically: you don&apos;t need to do anything!</li>
               </ul>
             </div>
 
@@ -176,7 +176,7 @@ export default function HowItWorksPage() {
             <div className="bg-gradient-to-r from-gray-custom-50 to-gray-custom-100 border border-brand-red/30 rounded-lg p-4">
               <h4 className="text-lg font-semibold mb-2 text-brand-red">Zero-Sum Economics</h4>
               <p className="text-gray-custom-700">
-                This is a <strong className="text-almost-black">zero-sum system</strong> - no points are created or destroyed.
+                This is a <strong className="text-almost-black">zero-sum system</strong>: no points are created or destroyed.
                 When inactive players lose points through decay, active players gain those exact same points through bonuses.
                 The total Elo in the system always stays the same. It&apos;s like Robin Hood, but for chess ratings.
               </p>
@@ -187,38 +187,24 @@ export default function HowItWorksPage() {
         {/* Quick Facts */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-4 text-brand-red">⚡ Quick Facts</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">🎬</div>
-              <h3 className="font-semibold mb-1 text-almost-black">Starting Elo</h3>
-              <p className="text-gray-custom-600">Everyone begins at 1200</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">🔢</div>
-              <h3 className="font-semibold mb-1 text-almost-black">K-Factor</h3>
-              <p className="text-gray-custom-600">32 (moderate volatility)</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">📅</div>
-              <h3 className="font-semibold mb-1 text-almost-black">Inactivity Threshold</h3>
-              <p className="text-gray-custom-600">7 days without playing</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">📉</div>
-              <h3 className="font-semibold mb-1 text-almost-black">Decay Rate</h3>
-              <p className="text-gray-custom-600">5 points per week</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">📈</div>
-              <h3 className="font-semibold mb-1 text-almost-black">Max Activity Bonus</h3>
-              <p className="text-gray-custom-600">5 points per week</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-custom-300 p-4">
-              <div className="text-3xl mb-2">⏰</div>
-              <h3 className="font-semibold mb-1 text-almost-black">Decay Schedule</h3>
-              <p className="text-gray-custom-600">Every Friday, 6 PM UTC</p>
-            </div>
-          </div>
+          <dl className="bg-white rounded-lg shadow-sm border border-gray-custom-300 divide-y divide-gray-custom-200">
+            {[
+              ['Starting Elo', 'Everyone begins at 1200'],
+              ['K-Factor', '32 (moderate volatility)'],
+              ['Inactivity threshold', '7 days without playing'],
+              ['Decay rate', '5 points per week'],
+              ['Max activity bonus', '5 points per week'],
+              ['Decay schedule', 'Every Friday, 6 PM UTC'],
+            ].map(([term, value]) => (
+              <div
+                key={term}
+                className="flex items-baseline justify-between gap-4 px-5 py-3.5"
+              >
+                <dt className="font-semibold text-almost-black">{term}</dt>
+                <dd className="text-right text-gray-custom-700">{value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* Tips */}
@@ -254,7 +240,7 @@ export default function HowItWorksPage() {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-sm hover:shadow-lg"
+            className="inline-block bg-brand-red hover:bg-brand-red-dark text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-sm hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2"
           >
             Back to Dashboard
           </Link>

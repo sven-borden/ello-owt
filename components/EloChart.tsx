@@ -17,7 +17,9 @@ export default function EloChart({ history }: EloChartProps) {
   if (history.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md border border-gray-custom-300 p-12 text-center">
-        <p className="text-gray-custom-600">No Elo history available yet</p>
+        <p className="text-gray-custom-600">
+          No rating history yet. Play a match to start the chart.
+        </p>
       </div>
     )
   }
@@ -48,7 +50,8 @@ export default function EloChart({ history }: EloChartProps) {
         <div className="flex gap-2 bg-gray-custom-100 rounded-lg p-1">
           <button
             onClick={() => setViewMode('matches')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            aria-pressed={viewMode === 'matches'}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red ${
               viewMode === 'matches'
                 ? 'bg-white text-almost-black shadow-sm'
                 : 'text-gray-custom-600 hover:text-almost-black'
@@ -58,7 +61,8 @@ export default function EloChart({ history }: EloChartProps) {
           </button>
           <button
             onClick={() => setViewMode('time')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            aria-pressed={viewMode === 'time'}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red ${
               viewMode === 'time'
                 ? 'bg-white text-almost-black shadow-sm'
                 : 'text-gray-custom-600 hover:text-almost-black'

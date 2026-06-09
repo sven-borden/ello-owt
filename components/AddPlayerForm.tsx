@@ -17,7 +17,7 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
     setError('')
 
     if (!playerName.trim()) {
-      setError('Player name is required')
+      setError('Enter a player name.')
       return
     }
 
@@ -39,7 +39,7 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
       setShowForm(false)
       onPlayerAdded()
     } catch (err) {
-      setError('Failed to add player. Please try again.')
+      setError('Could not add the player. Check your connection and try again.')
       console.error(err)
     } finally {
       setIsSubmitting(false)
@@ -65,6 +65,9 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="Player name"
+          aria-label="Player name"
+          maxLength={50}
+          required
           className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-transparent"
           disabled={isSubmitting}
           autoFocus
@@ -72,7 +75,10 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
       </div>
 
       {error && (
-        <div className="p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs">
+        <div
+          role="alert"
+          className="p-2 bg-red-50 border border-red-300 rounded text-red-700 text-xs"
+        >
           {error}
         </div>
       )}
