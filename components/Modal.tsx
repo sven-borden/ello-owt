@@ -34,8 +34,11 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     const focusable = () =>
       Array.from(modalRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
 
-    // Move focus into the modal on open
-    focusable()[0]?.focus()
+    // Move focus into the modal on open, preferring the first content control
+    // over the header close button.
+    const items = focusable()
+    const initial = items.find((el) => el.dataset.modalClose === undefined) ?? items[0]
+    initial?.focus()
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -96,7 +99,8 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-custom-600 hover:text-gray-custom-800 transition-colors"
+            data-modal-close
+            className="text-gray-custom-600 hover:text-gray-custom-800 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red rounded"
             aria-label="Close modal"
           >
             <svg
