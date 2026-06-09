@@ -17,6 +17,14 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
   const modalRef = useRef<HTMLDivElement>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
 
+  // Keep onClose current without re-running the open effect: parents pass a
+  // fresh handler every render, which would otherwise re-trigger focus on
+  // every keystroke and steal focus out of the form.
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
   useEffect(() => {
     if (!isOpen) return
 
@@ -31,7 +39,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
 
@@ -60,7 +68,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       // Restore focus to the trigger
       previouslyFocused.current?.focus()
     }
-  }, [isOpen, onClose])
+  }, [isOpen])
 
   if (!isOpen) return null
 
