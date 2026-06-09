@@ -5,55 +5,68 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Match } from '@/lib/types'
 import MatchHistoryTable from '@/components/MatchHistoryTable'
+import ErrorState from '@/components/ErrorState'
 
 export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchMatches = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const matchesQuery = query(
+        collection(db, 'matches'),
+        orderBy('timestamp', 'desc')
+      )
+      const querySnapshot = await getDocs(matchesQuery)
+      const matchesData: Match[] = []
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        matchesData.push({
+          id: doc.id,
+          playerAId: data.playerAId,
+          playerBId: data.playerBId,
+          playerAName: data.playerAName,
+          playerBName: data.playerBName,
+          winner: data.winner,
+          playerAEloBefore: data.playerAEloBefore,
+          playerBEloBefore: data.playerBEloBefore,
+          playerAEloAfter: data.playerAEloAfter,
+          playerBEloAfter: data.playerBEloAfter,
+          timestamp: data.timestamp?.toDate() || new Date(),
+        })
+      })
+
+      setMatches(matchesData)
+    } catch (err) {
+      console.error('Error fetching matches:', err)
+      setError('Could not load match history. Check your connection and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const matchesQuery = query(
-          collection(db, 'matches'),
-          orderBy('timestamp', 'desc')
-        )
-        const querySnapshot = await getDocs(matchesQuery)
-        const matchesData: Match[] = []
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data()
-          matchesData.push({
-            id: doc.id,
-            playerAId: data.playerAId,
-            playerBId: data.playerBId,
-            playerAName: data.playerAName,
-            playerBName: data.playerBName,
-            winner: data.winner,
-            playerAEloBefore: data.playerAEloBefore,
-            playerBEloBefore: data.playerBEloBefore,
-            playerAEloAfter: data.playerAEloAfter,
-            playerBEloAfter: data.playerBEloAfter,
-            timestamp: data.timestamp?.toDate() || new Date(),
-          })
-        })
-
-        setMatches(matchesData)
-      } catch (error) {
-        console.error('Error fetching matches:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchMatches()
   }, [])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center justify-center min-h-[400px]"
+      >
         <div className="text-gray-custom-600 text-lg">Loading matches...</div>
       </div>
     )
+  }
+
+  if (error) {
+    return <ErrorState message={error} onRetry={fetchMatches} />
   }
 
   return (

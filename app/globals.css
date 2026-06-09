@@ -3,9 +3,10 @@
 @tailwind utilities;
 
 :root {
+  /* Warm-tinted toward the brand-red hue; no pure white. */
   --foreground-rgb: 20, 4, 6;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 245, 245, 245;
+  --background-start-rgb: 252, 250, 249;
+  --background-end-rgb: 247, 244, 243;
 }
 
 body {
@@ -21,5 +22,16 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

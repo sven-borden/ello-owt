@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -9,16 +10,20 @@ import LeaderboardCard from '@/components/LeaderboardCard'
 import RecordMatchModal from '@/components/RecordMatchModal'
 import AddPlayerModal from '@/components/AddPlayerModal'
 import WelcomeMessage from '@/components/WelcomeMessage'
+import ErrorState from '@/components/ErrorState'
 
 export default function Home() {
   const router = useRouter()
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isRecordMatchModalOpen, setIsRecordMatchModalOpen] = useState(false)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
 
   // Fetch players from Firestore
   const fetchPlayers = async () => {
+    setLoading(true)
+    setError(null)
     try {
       const playersQuery = query(collection(db, 'players'), orderBy('currentElo', 'desc'))
       const querySnapshot = await getDocs(playersQuery)
@@ -39,8 +44,9 @@ export default function Home() {
       })
 
       setPlayers(playersData)
-    } catch (error) {
-      console.error('Error fetching players:', error)
+    } catch (err) {
+      console.error('Error fetching players:', err)
+      setError('Could not load the leaderboard. Check your connection and try again.')
     } finally {
       setLoading(false)
     }
@@ -52,10 +58,18 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-custom-600 text-lg">Loading...</div>
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center justify-center min-h-[400px]"
+      >
+        <div className="text-gray-custom-600 text-lg">Loading leaderboard...</div>
       </div>
     )
+  }
+
+  if (error) {
+    return <ErrorState message={error} onRetry={fetchPlayers} />
   }
 
   return (
@@ -76,7 +90,7 @@ export default function Home() {
               {players.length >= 2 && (
                 <button
                   onClick={() => setIsRecordMatchModalOpen(true)}
-                  className="w-full bg-brand-red text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                  className="w-full bg-brand-red text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2"
                 >
                   <svg
                     className="w-5 h-5"
@@ -96,7 +110,7 @@ export default function Home() {
               {/* Add Player Button */}
               <button
                 onClick={() => setIsAddPlayerModalOpen(true)}
-                className="w-full bg-brand-blue text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                className="w-full bg-brand-blue text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
               >
                 <svg
                   className="w-5 h-5"
@@ -115,7 +129,7 @@ export default function Home() {
               {/* How It Works Button */}
               <button
                 onClick={() => router.push('/how-it-works')}
-                className="w-full bg-[#C4A962] text-white font-semibold py-3 px-4 rounded-lg hover:bg-[#F4E4C1] hover:text-[#0A0A0A] transition-all text-sm flex items-center justify-center gap-2"
+                className="w-full bg-brand-gold text-white font-semibold py-3 px-4 rounded-lg hover:bg-brand-gold-light hover:text-almost-black transition-all text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2"
               >
                 <svg
                   className="w-5 h-5"
@@ -132,43 +146,44 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Stats Section */}
-            <div className="border-t border-gray-custom-200 pt-6 space-y-4">
-              {/* Total Matches - Clickable */}
-              <div
-                onClick={() => router.push('/matches')}
-                className="cursor-pointer hover:bg-gray-50 p-4 rounded-lg transition-all border border-transparent hover:border-gray-custom-300"
+            {/* Stats: one emphasized hero, two secondary readouts */}
+            <div className="border-t border-gray-custom-200 pt-6">
+              <Link
+                href="/matches"
+                className="group block -mx-2 px-2 py-1.5 rounded-lg transition-colors hover:bg-gray-custom-50 focus:outline-none focus:ring-2 focus:ring-brand-red"
               >
-                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-                  Total Matches
-                </h3>
-                <p className="text-3xl font-bold text-brand-red">
-                  {players.reduce((sum, p) => sum + p.matchesPlayed, 0) / 2}
-                </p>
-              </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-extrabold tabular-nums text-brand-red leading-none">
+                    {players.reduce((sum, p) => sum + p.matchesPlayed, 0) / 2}
+                  </span>
+                  <span className="text-sm font-medium text-gray-custom-700">
+                    matches played
+                  </span>
+                </div>
+                <span className="text-xs text-gray-custom-600 group-hover:text-brand-red transition-colors">
+                  View full history →
+                </span>
+              </Link>
 
-              {/* Average Elo */}
-              <div className="p-4 rounded-lg">
-                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-                  Average Elo
-                </h3>
-                <p className="text-3xl font-bold text-brand-red">
-                  {players.length > 0
-                    ? Math.round(
-                        players.reduce((sum, p) => sum + p.currentElo, 0) /
-                          players.length
-                      )
-                    : 0}
-                </p>
-              </div>
-
-              {/* Total Players */}
-              <div className="p-4 rounded-lg">
-                <h3 className="text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-1">
-                  Total Players
-                </h3>
-                <p className="text-3xl font-bold text-brand-red">{players.length}</p>
-              </div>
+              <dl className="mt-5 flex gap-8 text-gray-custom-700">
+                <div>
+                  <dd className="text-2xl font-bold tabular-nums text-almost-black leading-none">
+                    {players.length}
+                  </dd>
+                  <dt className="mt-1 text-xs text-gray-custom-600">Players</dt>
+                </div>
+                <div>
+                  <dd className="text-2xl font-bold tabular-nums text-almost-black leading-none">
+                    {players.length > 0
+                      ? Math.round(
+                          players.reduce((sum, p) => sum + p.currentElo, 0) /
+                            players.length
+                        )
+                      : 0}
+                  </dd>
+                  <dt className="mt-1 text-xs text-gray-custom-600">Avg Elo</dt>
+                </div>
+              </dl>
             </div>
           </div>
         </div>
@@ -184,8 +199,8 @@ export default function Home() {
                 <p className="text-gray-custom-700 text-lg font-semibold mb-2">
                   No players yet
                 </p>
-                <p className="text-sm text-gray-custom-500">
-                  Add your first player using the form on the left to get started.
+                <p className="text-sm text-gray-custom-600">
+                  Add your first player using the quick actions to get started.
                   Players start with an Elo rating of 1200.
                 </p>
               </div>

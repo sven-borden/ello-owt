@@ -30,17 +30,17 @@ export default function RecordMatchModal({
 
     // Validation
     if (!playerAId || !playerBId) {
-      setError('Please select both players')
+      setError('Pick both players first.')
       return
     }
 
     if (playerAId === playerBId) {
-      setError('Players must be different')
+      setError('Pick two different players.')
       return
     }
 
     if (!winner) {
-      setError('Please select a winner')
+      setError('Pick who won, or mark it a draw.')
       return
     }
 
@@ -72,7 +72,7 @@ export default function RecordMatchModal({
       onMatchRecorded()
       onClose()
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit match. Please try again.'
+      const errorMessage = err instanceof Error ? err.message : 'Could not record the match. Check your connection and try again.'
       setError(errorMessage)
       console.error('Error submitting match:', err)
     } finally {
@@ -94,13 +94,18 @@ export default function RecordMatchModal({
     <Modal isOpen={isOpen} onClose={handleClose} title="Record Match">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2">
+          <label
+            htmlFor="player-a"
+            className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2"
+          >
             Player A
           </label>
           <select
+            id="player-a"
+            name="player-a"
             value={playerAId}
             onChange={(e) => setPlayerAId(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
+            className="w-full px-3 py-2.5 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
             disabled={isSubmitting}
           >
             <option value="">Select Player A</option>
@@ -115,13 +120,18 @@ export default function RecordMatchModal({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2">
+          <label
+            htmlFor="player-b"
+            className="block text-xs font-semibold text-gray-custom-600 uppercase tracking-wide mb-2"
+          >
             Player B
           </label>
           <select
+            id="player-b"
+            name="player-b"
             value={playerBId}
             onChange={(e) => setPlayerBId(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
+            className="w-full px-3 py-2.5 text-sm border border-gray-custom-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent bg-white"
             disabled={isSubmitting}
           >
             <option value="">Select Player B</option>
@@ -144,7 +154,10 @@ export default function RecordMatchModal({
         />
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm">
+          <div
+            role="alert"
+            className="p-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm"
+          >
             {error}
           </div>
         )}
@@ -154,14 +167,14 @@ export default function RecordMatchModal({
             type="button"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="flex-1 bg-gray-custom-200 text-gray-custom-700 font-semibold py-2.5 px-4 rounded-lg hover:bg-gray-custom-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="flex-1 bg-gray-custom-200 text-gray-custom-700 font-semibold py-2.5 px-4 rounded-lg hover:bg-gray-custom-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm focus:outline-none focus:ring-2 focus:ring-gray-custom-500 focus:ring-offset-2"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-brand-red text-white font-semibold py-2.5 px-4 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="flex-1 bg-brand-red text-white font-semibold py-2.5 px-4 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2"
           >
             {isSubmitting ? 'Recording...' : 'Record Match'}
           </button>

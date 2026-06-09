@@ -15,7 +15,7 @@ const WELCOME_MESSAGES = [
   "The leaderboard awaits. Will you rise or fall today?",
   "Every grandmaster was once a beginner. Your journey continues here.",
   "Today's rating is tomorrow's history. Make it count!",
-  "Champions aren't born on the board—they're forged one move at a time.",
+  "Champions aren't born on the board; they're forged one move at a time.",
   "The King's throne is waiting. Will you claim it?",
 
   // Casual & Friendly
@@ -26,7 +26,7 @@ const WELCOME_MESSAGES = [
   "Back for more chess glory? You're in the right place!",
 
   // Swiss/OWT Themed
-  "Welcome to OWT Swiss Chess—where precision meets competition!",
+  "Welcome to OWT Swiss Chess, where precision meets competition!",
   "Swiss style: Clean. Minimal. Competitive. Let's play.",
   "The OWT Chess Arena: Where office legends are made!",
 ]
