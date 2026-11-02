@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 import { STARTING_ELO } from '@/lib/elo'
+import { parsePlayerName, readJsonBody } from '@/lib/api-guards'
 
 export async function POST(request: NextRequest) {
   try {
-    const { name } = await request.json()
-
-    if (!name || typeof name !== 'string' || name.trim() === '') {
-      return NextResponse.json(
-        { error: 'Player name is required' },
-        { status: 400 }
-      )
+    const parsedBody = await readJsonBody(request)
+    if (!parsedBody.ok) {
+      return parsedBody.response
     }
+
+    const parsedName = parsePlayerName(parsedBody.body.name)
+    if (!parsedName.ok) {
+      return NextResponse.json({ error: parsedName.error }, { status: 400 })
+    }
+    const { name } = parsedName
 
     // Initialize Firebase Admin (lazy initialization)
     const adminDb = getAdminDb()
@@ -31,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Create new player document
     const playerData = {
-      name: name.trim(),
+      name,
       currentElo: startingElo,
       matchesPlayed: 0,
       wins: 0,

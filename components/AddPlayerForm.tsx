@@ -32,6 +32,12 @@ export default function AddPlayerForm({ onPlayerAdded }: AddPlayerFormProps) {
       })
 
       if (!response.ok) {
+        // Show validation errors (4xx) from the server; anything else gets the generic message
+        const data = await response.json().catch(() => null)
+        if (response.status >= 400 && response.status < 500 && typeof data?.error === 'string') {
+          setError(data.error)
+          return
+        }
         throw new Error('Failed to add player')
       }
 
