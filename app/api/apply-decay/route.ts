@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
 import { calculateDecay, generateDecayMatchId, generateActivityBonusMatchId, DECAY_CONFIG } from '@/lib/decay'
+import { isAuthorizedCronRequest } from '@/lib/api-guards'
 
 /**
  * GET handler - Handles cron job execution and returns config info for manual queries
@@ -11,28 +12,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const isCronJob = searchParams.get('cron') === 'true'
 
-  // If this is a cron job request, verify auth and execute decay
+  // Cron job: POST performs the CRON_SECRET check before doing anything
   if (isCronJob) {
     console.log('[DECAY] Cron job triggered via GET')
-
-    // Verify cron secret
-    const authHeader = request.headers.get('Authorization')
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
-
-    console.log('[DECAY] Auth check - Has auth header:', !!authHeader)
-    console.log('[DECAY] Auth check - Has CRON_SECRET env var:', !!process.env.CRON_SECRET)
-
-    if (authHeader !== expectedAuth) {
-      console.log('[DECAY] Authorization failed')
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    console.log('[DECAY] Authorization successful - executing decay via GET')
-
-    // Execute the decay logic by calling the POST handler
     return POST(request)
   }
 
@@ -84,13 +66,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Verify cron secret to prevent unauthorized access
-    const authHeader = request.headers.get('Authorization')
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
-
-    console.log('[DECAY] Auth check - Has auth header:', !!authHeader)
-    console.log('[DECAY] Auth check - Has CRON_SECRET env var:', !!process.env.CRON_SECRET)
-
-    if (authHeader !== expectedAuth) {
+    if (!isAuthorizedCronRequest(request)) {
       console.log('[DECAY] Authorization failed')
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -427,9 +403,8 @@ export async function POST(request: NextRequest) {
     console.error('[DECAY] ERROR - Function failed:', error)
     console.error('[DECAY] ERROR - Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
 
-    const message = error instanceof Error ? error.message : 'Failed to apply decay'
     return NextResponse.json(
-      { error: message },
+      { error: 'Failed to apply decay' },
       { status: 500 }
     )
   }

@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb, getAdmin } from '@/lib/firebase-admin'
+import { isValidDocId, readJsonBody } from '@/lib/api-guards'
 
 // Elo calculation constants
 const K_FACTOR = 32
+
+/** Expected failure whose message is safe to return to the client. */
+class MatchRequestError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message)
+  }
+}
 
 /**
  * Calculate expected score for a player
@@ -57,10 +65,14 @@ function calculateMatchEloChanges(
  */
 export async function POST(request: NextRequest) {
   try {
-    const { playerAId, playerBId, winner } = await request.json()
+    const parsedBody = await readJsonBody(request)
+    if (!parsedBody.ok) {
+      return parsedBody.response
+    }
+    const { playerAId, playerBId, winner } = parsedBody.body
 
     // Validation
-    if (!playerAId || !playerBId) {
+    if (!isValidDocId(playerAId) || !isValidDocId(playerBId)) {
       return NextResponse.json(
         { error: 'Both playerAId and playerBId are required' },
         { status: 400 }
@@ -95,11 +107,16 @@ export async function POST(request: NextRequest) {
       const playerBDoc = await transaction.get(playerBRef)
 
       if (!playerADoc.exists || !playerBDoc.exists) {
-        throw new Error('One or both players not found')
+        throw new MatchRequestError('One or both players not found', 404)
       }
 
       const playerA = playerADoc.data()!
       const playerB = playerBDoc.data()!
+
+      // Refuse to propagate corrupted ratings (NaN would poison every future match)
+      if (!Number.isFinite(playerA.currentElo) || !Number.isFinite(playerB.currentElo)) {
+        throw new Error(`Invalid currentElo on player ${playerAId} or ${playerBId}`)
+      }
 
       // Calculate new Elo ratings (server-side - cannot be manipulated)
       const { playerAEloAfter, playerBEloAfter, playerAChange, playerBChange } =
@@ -178,12 +195,14 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error recording match:', error)
+    if (error instanceof MatchRequestError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
 
-    // Return appropriate error message
-    const message = error instanceof Error ? error.message : 'Failed to record match'
+    // Unexpected failure: log details server-side, don't leak internals to the client
+    console.error('Error recording match:', error)
     return NextResponse.json(
-      { error: message },
+      { error: 'Failed to record match' },
       { status: 500 }
     )
   }
