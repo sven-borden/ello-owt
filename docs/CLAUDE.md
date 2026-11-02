@@ -182,12 +182,12 @@ See `BRANDING.md` for complete color palette with RGB values and usage guidance.
 
 **IMPORTANT**: Review `SECURITY_ANALYSIS.md` for detailed security audit.
 
-### Critical Issues
+### Current Posture
 
-1. **Firestore Rules**: Currently allow unrestricted read/write (`if true`). Intended for internal use only.
-2. ~~**Client-side business logic**~~: **FIXED** - Elo calculations now happen server-side via `/api/record-match`
-3. **No authentication**: Anyone with Firebase config can access/modify data (or call API routes)
-4. **API endpoints**: `/api/add-player` and `/api/record-match` have no authentication
+1. **Firestore Rules**: Public read, client writes denied (`allow write: if false`). All writes go through API routes via the Admin SDK. Deploy with `firebase deploy --only firestore:rules`.
+2. ~~**Client-side business logic**~~: **FIXED** - Elo calculations happen server-side via `/api/record-match`
+3. **No authentication on write routes (by design)**: `/api/add-player` and `/api/record-match` are callable by anyone who can reach the deployment. Server-side validation in `lib/api-guards.ts` (JSON-only, doc-ID format, player-name rules) is the only guard.
+4. **Cron**: `/api/apply-decay` requires `Authorization: Bearer $CRON_SECRET` (constant-time, fails closed if unset).
 
 ### When Adding Features
 

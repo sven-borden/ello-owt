@@ -1,7 +1,35 @@
 # Security Analysis - OWT Chess Elo Tracker
 
-**Date:** 2025-01-19
-**Status:** Multiple critical vulnerabilities identified
+**Date:** 2025-01-19 (original audit) · **Status update:** 2026-11-02
+
+## Status Update (2026-11-02)
+
+| # | Finding | Status |
+|---|---------|--------|
+| 1 | Open Firestore rules | **Fixed in repo**: reads public, client writes denied (`allow write: if false`). Takes effect only after `firebase deploy --only firestore:rules`. Reads stay public because there is no sign-in. |
+| 2 | No API authentication | **Accepted risk (product decision)**: `add-player`/`record-match` stay unauthenticated. Mitigated by strict server-side validation in `lib/api-guards.ts`. |
+| 3 | Client-side business logic | **Fixed earlier**: Elo is computed server-side in `/api/record-match`. |
+| 4 | Player-name XSS / bad data | **Fixed**: names are NFC-normalized, ≤50 code points, and control/bidi/zero-width chars are rejected. No character whitelist, so accented names still work. React escapes on render. |
+| 5 | No rate limiting | **Open**: needs a shared store (e.g. Upstash) or Vercel Firewall rules. |
+| 6 | Firebase config exposure | **Partially mitigated**: client writes are denied by rules. Enforcing App Check for Firestore is a Firebase Console toggle (not code); enable it once App Check metrics show legitimate traffic is attested. |
+| 7 | No CSP / security headers | **Partially fixed**: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, and no `X-Powered-By`. A script/style CSP still needs nonces plus the Firebase/reCAPTCHA origins. |
+| 8 | CSRF | **Fixed**: JSON routes require `Content-Type: application/json`, so cross-site form posts are rejected (415) and cross-origin `fetch` hits a CORS preflight. |
+| 9 | Error information disclosure | **Fixed**: unexpected errors return generic messages; details are logged server-side only. |
+| 10 | No audit logging | **Open**: nothing to attribute without authentication. |
+
+**Found and fixed in this pass:**
+- **Cron auth bypass:** with `CRON_SECRET` unset, `apply-decay` accepted `Authorization: Bearer undefined` (template literal of `undefined`). It now fails closed and compares in constant time.
+- **Unvalidated player IDs:** `record-match` accepted non-string or `/`-containing IDs. These are now rejected.
+- **Next.js advisories:** critical advisories in `next@16.2.5` fixed by upgrading to `16.4.3`, plus non-breaking `npm audit fix` for transitive deps.
+
+**Remaining `npm audit` items (no critical):**
+- `@grpc/grpc-js` advisory (GHSA-m9gg-hp2v-232j) via `firebase` and `firebase-admin`. It affects gRPC servers doing mTLS, a code path this app does not use. Clearing it needs `firebase` 11→13 and `firebase-admin` 13→14 (Node ≥22). Do that in a separate, tested PR.
+- Moderate `uuid` advisories via `firebase-admin` 13, same major bump.
+- Dev-only ESLint chain advisories.
+
+---
+
+*The original audit follows. Read it with the table above in mind.*
 
 ## Executive Summary
 
