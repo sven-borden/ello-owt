@@ -2,20 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Open rules for internal company use (no authentication required)
-    // WARNING: These rules allow anyone with access to read and write
-    // Only suitable for internal, trusted environments
+    // Reads are public: pages read players, matches and eloHistory with the
+    // client SDK and there is no sign-in.
+    //
+    // Client writes are denied. Every mutation goes through the API routes
+    // (app/api/*), which use the Admin SDK — that bypasses these rules and
+    // keeps Elo math and the player/match/eloHistory transaction server-side.
+    // Maintenance scripts in scripts/ also use the Admin SDK.
 
     match /players/{playerId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
     match /matches/{matchId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
 
     match /eloHistory/{historyId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if false;
     }
+
+    // Anything else (unknown collections) is denied by default.
   }
 }
